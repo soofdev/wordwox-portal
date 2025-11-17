@@ -1,0 +1,231 @@
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Global cursor styles for better UX */
+@layer base {
+    /* Ensure all clickable elements have pointer cursor */
+    [wire\:click], 
+    [onclick], 
+    button, 
+    a, 
+    .cursor-pointer,
+    [data-flux-button],
+    [data-flux-menu-item],
+    flux\:button,
+    flux\:menu\:item,
+    [data-flux-modal-trigger],
+    flux\:modal\:trigger,
+    [role="button"],
+    .btn,
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"] {
+        cursor: pointer !important;
+    }
+    
+    /* Disabled elements should show not-allowed cursor */
+    [disabled], 
+    [disabled] *,
+    .cursor-not-allowed,
+    [aria-disabled="true"],
+    [data-disabled="true"] {
+        cursor: not-allowed !important;
+    }
+    
+    /* Table rows with click handlers should have pointer cursor */
+    tr[wire\:click],
+    tr[onclick],
+    [data-flux-table-row][wire\:click],
+    [data-flux-table-row][onclick],
+    flux\:table\:row[wire\:click],
+    flux\:table\:row[onclick] {
+        cursor: pointer !important;
+    }
+}
+
+/* Flux UI specific cursor styles - High Priority */
+@layer utilities {
+    /* Force pointer cursor on all Flux UI interactive elements with highest priority */
+    flux\:button,
+    flux\:button *,
+    flux\:modal\:trigger,
+    flux\:modal\:trigger *,
+    flux\:menu\:item,
+    flux\:menu\:item *,
+    flux\:dropdown\:trigger,
+    flux\:dropdown\:trigger *,
+    [data-flux-button],
+    [data-flux-button] *,
+    [data-flux-modal-trigger],
+    [data-flux-modal-trigger] *,
+    [data-flux-menu-item],
+    [data-flux-menu-item] *,
+    [data-flux-dropdown-trigger],
+    [data-flux-dropdown-trigger] *,
+    /* Common button classes that might be used */
+    .bg-green-600,
+    .bg-blue-600,
+    .bg-red-600,
+    .bg-gray-600,
+    .border-green-600,
+    .border-blue-600,
+    .border-red-600,
+    .border-gray-600,
+    /* Variant classes */
+    [class*="variant-primary"],
+    [class*="variant-secondary"],
+    [class*="variant-outline"],
+    [class*="variant-danger"],
+    /* Size classes */
+    [class*="size-sm"],
+    [class*="size-md"],
+    [class*="size-lg"] {
+        cursor: pointer !important;
+    }
+    
+    /* Ensure buttons inside links also have pointer cursor */
+    a flux\:button,
+    a flux\:button *,
+    a [data-flux-button],
+    a [data-flux-button] *,
+    /* Any element with button-like styling */
+    [class*="bg-"][class*="hover:bg-"],
+    [class*="border-"][class*="hover:border-"],
+    [class*="text-"][class*="hover:text-"] {
+        cursor: pointer !important;
+    }
+}
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-zinc-50: #fafafa;
+    --color-zinc-100: #f5f5f5;
+    --color-zinc-200: #e5e5e5;
+    --color-zinc-300: #d4d4d4;
+    --color-zinc-400: #a3a3a3;
+    --color-zinc-500: #737373;
+    --color-zinc-600: #525252;
+    --color-zinc-700: #404040;
+    --color-zinc-800: #262626;
+    --color-zinc-900: #171717;
+    --color-zinc-950: #0a0a0a;
+
+    --color-accent: var(--color-neutral-800);
+    --color-accent-content: var(--color-neutral-800);
+    --color-accent-foreground: var(--color-white);
+}
+
+@layer theme {
+    .dark {
+        --color-accent: var(--color-white);
+        --color-accent-content: var(--color-white);
+        --color-accent-foreground: var(--color-neutral-800);
+    }
+}
+
+@layer base {
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+[data-flux-field]:not(ui-radio, ui-checkbox) {
+    @apply grid gap-2;
+}
+
+[data-flux-label] {
+    @apply !mb-0 !leading-tight;
+}
+
+input:focus[data-flux-control],
+textarea:focus[data-flux-control],
+select:focus[data-flux-control] {
+    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+}
+
+/* \[:where(&)\]:size-4 {
+    @apply size-4;
+} */
+
+/* Infinite scroll enhancements */
+@layer components {
+
+    /* Smooth scrolling for better UX */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Loading spinner animation */
+    .loading-spinner {
+        @apply animate-spin h-5 w-5;
+    }
+
+    /* Infinite scroll loading indicator */
+    #loading-indicator {
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    /* Scroll to top button styles */
+    #scroll-to-top {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #scroll-to-top:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    #scroll-to-top:active {
+        transform: translateY(0px);
+    }
+
+    /* Better touch targets for mobile */
+    @media (max-width: 768px) {
+
+        /* Make table rows more touch-friendly on mobile */
+        flux:table flux:table.row {
+            min-height: 72px;
+        }
+
+        /* Ensure proper spacing for mobile interactions */
+        #members-table-container {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Mobile-optimized scroll to top button */
+        #scroll-to-top {
+            bottom: 1.5rem;
+            /* 24px */
+            right: 1.5rem;
+            /* 24px */
+            padding: 0.875rem;
+            /* 14px - larger touch target */
+            min-width: 56px;
+            min-height: 56px;
+            /* Follow Material Design guidelines */
+        }
+
+        #scroll-to-top svg {
+            width: 1.5rem;
+            /* 24px */
+            height: 1.5rem;
+            /* 24px */
+        }
+    }
+}

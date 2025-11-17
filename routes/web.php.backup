@@ -1,0 +1,700 @@
+<?php
+
+use App\Http\Controllers\OrgUserController;
+use App\Livewire\CreateMemberWithSignPad;
+use App\Livewire\Settings\Appearance;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Route;
+
+// Debugbar routes for Laravel 11 compatibility
+if (app()->environment('local') && config('debugbar.enabled')) {
+    Route::get('_debugbar/open', ['as' => 'debugbar.openhandler', 'uses' => '\Barryvdh\Debugbar\Controllers\OpenHandlerController@handle']);
+    Route::get('_debugbar/assets/stylesheets', ['as' => 'debugbar.assets.css', 'uses' => '\Barryvdh\Debugbar\Controllers\AssetController@css']);
+    Route::get('_debugbar/assets/javascript', ['as' => 'debugbar.assets.js', 'uses' => '\Barryvdh\Debugbar\Controllers\AssetController@js']);
+}
+
+Route::get('/', function () {
+    return redirect()->route('login');
+})->name('home');
+
+Route::get('dashboard', \App\Livewire\Dashboard::class)
+    ->middleware(['auth', 'verified', \App\Http\Middleware\SetTenantTimezone::class])
+    ->name('dashboard');
+
+// Member management routes
+Route::get('members/register-method', \App\Livewire\RegisterMethodSelection::class)
+    ->name('members.register.method')
+    ->middleware(['auth', 'verified']);
+
+Route::get('members/create', CreateMemberWithSignPad::class)
+    ->name('members.create')
+    ->middleware(['auth', 'verified']);
+
+Route::get('members/send-link', \App\Livewire\SendRegistrationLink::class)
+    ->name('members.send.link')
+    ->middleware(['auth', 'verified']);
+
+Route::get('members/show-qr', \App\Livewire\ShowRegistrationQR::class)
+    ->name('members.show.qr')
+    ->middleware(['auth', 'verified']);
+
+// Legacy route removed - CreateMember class no longer exists
+
+// Legacy membership route removed - now using wizard only
+
+// Membership wizard
+Route::get('memberships/create', \App\Livewire\MembershipWizard::class)
+    ->name('memberships.create')
+    ->middleware(['auth', 'verified']);
+
+// Membership success page
+Route::get('memberships/success/{uuid}', \App\Livewire\MembershipSuccess::class)
+    ->name('memberships.success')
+    ->middleware(['auth', 'verified']);
+
+// Active members list
+Route::get('members/active', \App\Livewire\ActiveMembersList::class)
+    ->name('members.active')
+    ->middleware(['auth', 'verified']);
+
+// Member profile
+Route::get('members/{member}', \App\Livewire\MemberProfile::class)
+    ->name('members.profile')
+    ->middleware(['auth', 'verified']);
+
+// Member activities
+Route::get('members/{member}/activities', \App\Livewire\MemberActivities::class)
+    ->name('members.activities')
+    ->middleware(['auth', 'verified']);
+
+// Edit member profile
+Route::get('members/{member}/edit', \App\Livewire\EditMemberProfile::class)
+    ->name('members.edit')
+    ->middleware(['auth', 'verified']);
+
+// Organization User Plans (Subscriptions) - Fixed to use existing MembershipTable component
+Route::get('subscriptions', \App\Livewire\Subscriptions\MembershipTable::class)
+    ->name('org-user-plans')
+    ->middleware(['auth', 'verified']);
+
+// Membership Holds Listing
+Route::get('subscriptions/holds', \App\Livewire\Subscriptions\MembershipHolds::class)
+    ->name('subscriptions.holds')
+    ->middleware(['auth', 'verified']);
+
+// Bulk Create Hold Page
+Route::get('subscriptions/holds/create', \App\Livewire\Subscriptions\BulkCreateHoldPage::class)
+    ->name('subscriptions.holds.create')
+    ->middleware(['auth', 'verified']);
+
+// Bulk End Hold Page
+Route::get('subscriptions/holds/end', \App\Livewire\Subscriptions\BulkEndHoldPage::class)
+    ->name('subscriptions.holds.end')
+    ->middleware(['auth', 'verified']);
+
+// Individual Hold Detail View
+Route::get('subscriptions/holds/{holdId}', \App\Livewire\Subscriptions\HoldDetail::class)
+    ->name('subscriptions.holds.detail')
+    ->middleware(['auth', 'verified']);
+
+// Conflicted Memberships (Users NOT affected by holds)
+Route::get('subscriptions/conflicted', \App\Livewire\Subscriptions\ConflictedMemberships::class)
+    ->name('subscriptions.conflicted')
+    ->middleware(['auth', 'verified']);
+
+// Individual Subscription Detail View
+Route::get('subscriptions/{id}', \App\Livewire\Subscriptions\MembershipView::class)
+    ->name('subscriptions.show')
+    ->middleware(['auth', 'verified']);
+
+// Invoice View
+Route::get('subscriptions/{id}/invoice', \App\Livewire\Subscriptions\InvoiceView::class)
+    ->name('subscriptions.invoice')
+    ->middleware(['auth', 'verified']);
+
+// Add Payment to Invoice
+Route::get('subscriptions/{membershipId}/invoice/add-payment', \App\Livewire\Subscriptions\AddPayment::class)
+    ->name('subscriptions.invoice.add-payment')
+    ->middleware(['auth', 'verified']);
+
+// Unified Invoice View (accessible by UUID - no auth required)
+Route::get('print/invoice-receipt', function () {
+    $uuid = request('id');
+    
+    if (!$uuid) {
+        abort(404, 'Invoice ID is required');
+    }
+    
+    // Find the OrgUserPlan by UUID or ID
+    $membership = \App\Models\OrgUserPlan::where('uuid', $uuid)
+        ->orWhere('id', $uuid)
+        ->with(['orgUser', 'orgPlan', 'orgDiscount', 'soldBy', 'createdBy'])
+        ->firstOrFail();
+    
+    return view('invoices.unified', compact('membership'));
+})->name('invoice.unified');
+
+// Send Receipt Route (similar to Box project)
+Route::get('org-invoice/send-receipt', function () {
+    $receipt = request('receipt'); // UUID of the payment
+    $user = request('user'); // User ID
+    
+    if (!$receipt || !$user) {
+        abort(400, 'Receipt UUID and User ID are required');
+    }
+    
+    // Find the payment by UUID
+    $payment = DB::table('orgInvoicePayment')
+        ->where('uuid', $receipt)
+        ->where('isDeleted', 0)
+        ->first();
+    
+    if (!$payment) {
+        abort(404, 'Payment not found');
+    }
+    
+    // Find the user
+    $orgUser = DB::table('orgUser')
+        ->where('id', $user)
+        ->where('isDeleted', 0)
+        ->first();
+    
+    if (!$orgUser || !$orgUser->email) {
+        abort(404, 'User not found or no email address');
+    }
+    
+    // Dispatch job to Yii2 queue system (using Box project's InvoicePaymentSendToUserJob)
+    $dispatcher = new \App\Services\Yii2QueueDispatcher();
+    $dispatcher->dispatch('common\jobs\invoice\InvoicePaymentSendToUserJob', [
+        'uuid' => $payment->uuid,
+        'user_id' => $orgUser->id
+    ]);
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Receipt sending has been queued successfully',
+        'payment_uuid' => $payment->uuid,
+        'user_email' => $orgUser->email
+    ]);
+})->name('invoice.send-receipt');
+
+// Subscription Upcharge Page
+Route::get('subscriptions/{id}/upcharge', \App\Livewire\Subscriptions\UpChargePage::class)
+    ->name('subscriptions.upcharge')
+    ->middleware(['auth', 'verified']);
+
+// Member creation success
+Route::get('member/{orgUser}/success', function ($orgUserId) {
+    $orgUser = \App\Models\OrgUser::findOrFail($orgUserId);
+    return view('member.creation-success', compact('orgUser'));
+})->name('member.creation.success')->middleware(['auth', 'verified']);
+
+// Member purchase membership (with conditional terms check)
+Route::get('member/{orgUser}/purchase-membership', function ($orgUserId) {
+    $orgUser = \App\Models\OrgUser::findOrFail($orgUserId);
+
+    // Check if organization has terms configured
+    $terms = \App\Models\OrgTerms::getLatestForOrg($orgUser->org_id);
+
+    // Only require signature if organization has terms AND user hasn't signed them
+    if ($terms && !$orgUser->hasBeenSigned()) {
+        // Store the intent to purchase membership after signing
+        session(['membership_purchase_intent' => $orgUser->id]);
+        // Redirect to signature page first
+        return redirect()->route('member.signature', $orgUser->id);
+    }
+
+    // Either no terms required OR user has already signed terms, go directly to membership wizard
+    return redirect()->route('memberships.create', ['orgUser' => $orgUser->id]);
+})->name('member.purchase.membership')->middleware(['auth', 'verified']);
+
+// Member signature step route - now shows terms first
+Route::get('member/{orgUser}/signature', function ($orgUserId) {
+    $orgUser = \App\Models\OrgUser::findOrFail($orgUserId);
+
+    // Check if already signed
+    if ($orgUser->hasBeenSigned()) {
+        // If already signed, redirect to completion page
+        $signature = $orgUser->signature;
+        return redirect()->route('member.signature.complete', ['uuid' => $signature->uuid]);
+    }
+
+    // For unsigned users, ALWAYS start with terms review first
+    // (Session check moved to signature pad route for better flow control)
+    return redirect()->route('member.terms.review', $orgUser->id);
+})->name('member.signature')->middleware(['auth', 'verified']);
+
+// New route: Terms review (Step 1 of signature process)
+Route::get('member/{orgUser}/terms-review', function ($orgUserId) {
+    $orgUser = \App\Models\OrgUser::findOrFail($orgUserId);
+
+    // Check if already signed
+    if ($orgUser->hasBeenSigned()) {
+        $signature = $orgUser->signature;
+        return redirect()->route('member.signature.complete', ['uuid' => $signature->uuid]);
+    }
+
+    // Get the latest active terms for the organization
+    $terms = \App\Models\OrgTerms::getLatestForOrg($orgUser->org_id);
+
+    if (!$terms) {
+        // No terms found, this route should not have been accessed
+        return redirect()->route('dashboard')->with('error', 'Terms of service are not configured for this organization.');
+    }
+
+    return view('member.terms-review', compact('orgUser', 'terms'));
+})->name('member.terms.review')->middleware(['auth', 'verified']);
+
+// New route: Terms agreement confirmation (Step 1 -> Step 2)
+Route::post('member/{orgUser}/terms-agree', function ($orgUserId) {
+    $orgUser = \App\Models\OrgUser::findOrFail($orgUserId);
+    $termsId = request('terms_id');
+
+    // Validate terms exist and belong to this organization
+    $terms = \App\Models\OrgTerms::where('id', $termsId)
+        ->where('org_id', $orgUser->org_id)
+        ->active()
+        ->first();
+
+    if (!$terms) {
+        return redirect()->back()->with('error', 'Invalid terms of service.');
+    }
+
+    // Store terms agreement in session (temporary until signature is completed)
+    session([
+        'terms_agreed_' . $orgUser->id => true,
+        'terms_agreed_id_' . $orgUser->id => $terms->id,
+        'terms_agreed_at_' . $orgUser->id => now()->toISOString()
+    ]);
+
+    // Generate a clean signature URL with token
+    $token = md5($orgUser->id . time() . config('app.key'));
+
+    // Store token in session for validation
+    session(['signature_token_' . $orgUser->id => $token]);
+
+    // Redirect to clean signature URL
+    return redirect()->route('member.terms.signature', ['orgUser' => $orgUser->id, 'token' => $token]);
+})->name('member.terms.agree')->middleware(['auth', 'verified']);
+
+// New route: Clean signature URL (Step 2 of signature process)
+Route::get('member/{orgUser}/terms-signature/{token}', function ($orgUserId, $token) {
+    $orgUser = \App\Models\OrgUser::findOrFail($orgUserId);
+
+    // Check if already signed
+    if ($orgUser->hasBeenSigned()) {
+        $signature = $orgUser->signature;
+        return redirect()->route('member.signature.complete', ['uuid' => $signature->uuid]);
+    }
+
+    // Validate terms agreement and token
+    if (!session()->has('terms_agreed_' . $orgUser->id) ||
+        !session()->has('signature_token_' . $orgUser->id) ||
+        session('signature_token_' . $orgUser->id) !== $token) {
+        // Invalid session or token, redirect to terms review
+        return redirect()->route('member.terms.review', $orgUser->id);
+    }
+
+    // Valid session and token, show signature pad
+            return view('member.terms-signature', compact('orgUser', 'token'));
+    })->name('member.terms.signature')->middleware(['auth', 'verified']);
+
+    // Send SMS signature request
+    Route::post('member/{orgUser}/send-signature-sms', function ($orgUserId) {
+        $orgUser = \App\Models\OrgUser::findOrFail($orgUserId);
+        $signatureRequestService = app(\App\Services\SignatureRequestService::class);
+
+        $signatureRequest = $signatureRequestService->createAndSend($orgUser, 'sms');
+
+        if ($signatureRequest) {
+            return redirect()->route('member.signature.sms.sent', $orgUser->id)
+                ->with('success', 'SMS sent successfully!');
+        } else {
+            return redirect()->back()->with('error', 'Failed to send SMS. Please try again.');
+        }
+    })->name('member.send.signature.sms')->middleware(['auth', 'verified']);
+
+    // Send email signature request
+    Route::post('member/{orgUser}/send-signature-email', function ($orgUserId) {
+        $orgUser = \App\Models\OrgUser::findOrFail($orgUserId);
+        $signatureRequestService = app(\App\Services\SignatureRequestService::class);
+
+        $signatureRequest = $signatureRequestService->createAndSend($orgUser, 'email');
+
+        if ($signatureRequest) {
+            return redirect()->route('member.signature.email.sent', $orgUser->id)
+                ->with('success', 'Email sent successfully!');
+        } else {
+            return redirect()->back()->with('error', 'Failed to send email. Please try again.');
+        }
+    })->name('member.send.signature.email')->middleware(['auth', 'verified']);
+
+    // SMS sent success screen
+    Route::get('member/{orgUser}/signature-sms-sent', function ($orgUserId) {
+        $orgUser = \App\Models\OrgUser::findOrFail($orgUserId);
+        return view('member.signature-sms-sent', compact('orgUser'));
+    })->name('member.signature.sms.sent')->middleware(['auth', 'verified']);
+
+    // Email sent success screen
+    Route::get('member/{orgUser}/signature-email-sent', function ($orgUserId) {
+        $orgUser = \App\Models\OrgUser::findOrFail($orgUserId);
+        return view('member.signature-email-sent', compact('orgUser'));
+    })->name('member.signature.email.sent')->middleware(['auth', 'verified']);
+
+// Signature pad display route (missing from the package)
+Route::get('creagia/sign-pad', function () {
+    $model = request('model');
+    $id = request('id');
+    $token = request('token');
+
+    // Validate the model and ID
+    if (!$model || !$id || !$token) {
+        abort(404);
+    }
+
+    // Find the model instance
+    try {
+        $instance = $model::findOrFail($id);
+    } catch (Exception $e) {
+        abort(404, 'Model instance not found');
+    }
+
+    // Additional validation: Check if this is an OrgUser and terms have been agreed
+    if ($model === 'App\\Models\\OrgUser') {
+        $orgUser = $instance;
+
+        // Check if terms have been agreed to in this session
+        if (!session()->has('terms_agreed_' . $orgUser->id)) {
+            // Terms not agreed, redirect to terms review
+            return redirect()->route('member.terms.review', $orgUser->id);
+        }
+    }
+
+    // For now, skip token validation since we need to match the package's method
+    // TODO: Implement proper token validation matching the package
+
+    // Return the signature pad view
+    return view('laravel-sign-pad::pad');
+})->name('sign-pad::pad')->middleware(['auth', 'verified']);
+
+// Signature completion route
+Route::get('member/signature/complete/{uuid}', function ($uuid) {
+    $signature = \App\Models\Signature::where('uuid', $uuid)->firstOrFail();
+    $orgUser = $signature->signable;
+
+    // Generate the signed PDF if it doesn't exist
+    if (!$signature->document_filename) {
+        try {
+            $pdfService = new \App\Services\TermsPdfService();
+            $pdfFilename = $pdfService->generateSignedTermsPdf($orgUser, $signature);
+
+            // Update the signature record with the PDF filename
+            $signature->update(['document_filename' => $pdfFilename]);
+
+            // Refresh the signature model to get the updated data
+            $signature->refresh();
+        } catch (\Exception $e) {
+            \Log::error('Failed to generate terms PDF: ' . $e->getMessage());
+            // Continue to show the completion page even if PDF generation fails
+        }
+    }
+
+    // Clean up terms agreement and signature session data (signature is now complete)
+    session()->forget([
+        'terms_agreed_' . $orgUser->id,
+        'terms_agreed_id_' . $orgUser->id,
+        'terms_agreed_at_' . $orgUser->id,
+        'signature_token_' . $orgUser->id
+    ]);
+
+    // Check if we should redirect to membership creation after signature
+    if (session()->has('membership_purchase_intent') && session('membership_purchase_intent') == $orgUser->id) {
+        // Clear the session intent
+        session()->forget('membership_purchase_intent');
+        return redirect()->route('memberships.create', ['orgUser' => $orgUser->id])
+            ->with('success', 'Terms signed successfully! Now you can purchase a membership.');
+    }
+
+    return view('member.signature-complete', compact('orgUser', 'signature'));
+})->name('member.signature.complete')->middleware(['auth', 'verified']);
+
+
+
+// Language switching route
+Route::post('language/switch', [\App\Http\Controllers\LanguageController::class, 'switch'])
+    ->name('language.switch')
+    ->middleware(['auth']);
+
+// Signed agreement download routes
+Route::get('member/{member}/signed-agreement/download', [\App\Http\Controllers\SignedAgreementController::class, 'download'])
+    ->name('member.download.signed-agreement')
+    ->middleware(['auth', 'verified']);
+
+Route::get('member/{member}/signed-agreement/preview', [\App\Http\Controllers\SignedAgreementController::class, 'preview'])
+    ->name('member.preview.signed-agreement')
+    ->middleware(['auth', 'verified']);
+
+// Organization selection routes
+Route::get('org-user/select', [OrgUserController::class, 'select'])
+    ->name('org-user.select')
+    ->middleware(['auth']);
+Route::get('org-user/set/{id}', [OrgUserController::class, 'set'])
+    ->name('org-user.set')
+    ->middleware(['auth']);
+
+Route::middleware(['auth'])->group(function () {
+    Route::redirect('settings', 'settings/appearance');
+
+    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+    Route::get('settings/language-settings', \App\Livewire\Settings\LanguageSettings::class)->name('settings.language-settings');
+    Route::get('settings/org-terms', \App\Livewire\Settings\OrgTerms::class)->name('settings.org-terms');
+    Route::get('settings/org-terms/create', \App\Livewire\Settings\OrgTerms::class)->name('settings.org-terms.create');
+    Route::get('settings/org-terms/{id}/edit', \App\Livewire\Settings\OrgTerms::class)->name('settings.org-terms.edit');
+});
+
+// Setup routes
+Route::middleware(['auth'])->prefix('setup')->name('setup.')->group(function () {
+    Route::get('roles', \App\Livewire\Setup\Roles\RolesManagement::class)->name('roles');
+    Route::get('roles/create', \App\Livewire\Setup\Roles\CreateRole::class)->name('roles.create');
+    Route::get('roles/{id}/edit', \App\Livewire\Setup\Roles\EditRole::class)->name('roles.edit');
+});
+
+
+// Custom signature processing route that supports redirect_url
+Route::post('custom/sign-pad', \App\Http\Controllers\CustomSignPadController::class)->name('custom.sign-pad.signature');
+
+// Public signature routes (no authentication required)
+Route::prefix('public/signature')->name('public.signature.')->group(function () {
+    Route::get('{token}/terms-review', function ($token) {
+        $signatureRequestService = app(\App\Services\SignatureRequestService::class);
+        $signatureRequest = $signatureRequestService->getByToken($token);
+
+        if (!$signatureRequest) {
+            abort(404, 'Signature request not found or expired.');
+        }
+
+        $orgUser = $signatureRequest->orgUser;
+        $terms = \App\Models\OrgTerms::getLatestForOrg($orgUser->org_id);
+
+        if (!$terms) {
+            abort(404, 'No terms of service found for this organization.');
+        }
+
+        return view('public.signature.terms-review', compact('signatureRequest', 'orgUser', 'terms'));
+    })->name('terms.review');
+
+    Route::post('{token}/terms-agree', function ($token) {
+        $signatureRequestService = app(\App\Services\SignatureRequestService::class);
+        $signatureRequest = $signatureRequestService->getByToken($token);
+
+        if (!$signatureRequest) {
+            abort(404, 'Signature request not found or expired.');
+        }
+
+        $termsId = request('terms_id');
+        $orgUser = $signatureRequest->orgUser;
+        $terms = \App\Models\OrgTerms::where('id', $termsId)->where('org_id', $orgUser->org_id)->active()->first();
+
+        if (!$terms) {
+            return redirect()->back()->with('error', 'Invalid terms of service.');
+        }
+
+        // Mark signature request as agreed
+        $signatureRequest->markAsAgreed();
+
+        return redirect()->route('public.signature.pad', $token);
+    })->name('terms.agree');
+
+    Route::get('{token}/signature-pad', function ($token) {
+        $signatureRequestService = app(\App\Services\SignatureRequestService::class);
+        $signatureRequest = $signatureRequestService->getByToken($token);
+
+        if (!$signatureRequest || $signatureRequest->status !== 'agreed') {
+            return redirect()->route('public.signature.terms.review', $token);
+        }
+
+        $orgUser = $signatureRequest->orgUser;
+        return view('public.signature.signature-pad', compact('signatureRequest', 'orgUser', 'token'));
+    })->name('pad');
+
+    Route::get('{token}/complete', function ($token) {
+        $signatureRequestService = app(\App\Services\SignatureRequestService::class);
+        $signatureRequest = $signatureRequestService->getByToken($token);
+
+        if (!$signatureRequest) {
+            abort(404, 'Signature request not found.');
+        }
+
+        $orgUser = $signatureRequest->orgUser;
+
+        // Mark as completed if not already
+        if ($signatureRequest->status === 'agreed') {
+            $signatureRequest->markAsSigned();
+        }
+
+        return view('public.signature.complete', compact('signatureRequest', 'orgUser'));
+    })->name('complete');
+});
+
+// Customer Registration Wizard Routes (Public - No Authentication Required)
+Route::prefix('register')->name('register.')->middleware('public.language')->group(function () {
+    // Language switching endpoint (shared handler for both route patterns)
+    $languageSwitchHandler = function (Request $request, $identifier) {
+        if ($request->input('action') === 'switch_language') {
+            $language = $request->input('language');
+            if (in_array($language, ['en', 'ar'])) {
+                session(['public_locale' => $language]);
+                Cookie::queue('public_language_preference', $language, 525600); // 1 year
+                return response()->json(['success' => true]);
+            }
+        }
+        return response()->json(['error' => 'Invalid request'], 400);
+    };
+
+    Route::post('org/{identifier}', $languageSwitchHandler);
+    Route::post('{identifier}', $languageSwitchHandler);
+
+    // Universal organization registration (using org UUID)
+    Route::get('org/{identifier}', \App\Livewire\CustomerRegistrationWizard::class)
+        ->name('org');
+
+    // Public registration wizard with token (for staff-generated links)
+    Route::get('{identifier}', \App\Livewire\CustomerRegistrationWizard::class)
+        ->name('wizard');
+
+    // Registration success page (public)
+    Route::get('{token}/success', function ($token) {
+        // Validate token and show success page
+        $registrationService = app(\App\Services\CustomerRegistrationService::class);
+        $tokenData = $registrationService->validateRegistrationToken($token);
+
+        if (!$tokenData) {
+            abort(404, __('public_registration.wizard.errors.invalid_token'));
+        }
+
+        return view('public.registration.success', compact('tokenData'));
+    })->name('success');
+});
+
+// Portal Staff Routes for Registration Link Management (Authenticated)
+// TODO: MOVE THESE TO A CONTROLLER
+Route::middleware(['auth', 'verified'])->prefix('registration-links')->name('registration.links.')->group(function () {
+    // Generate and send registration links
+    Route::get('/', \App\Livewire\RegistrationLinkManager::class)
+        ->name('index');
+
+    // Generate new registration link
+    Route::post('generate', function () {
+        $type = request('type', 'individual'); // 'individual' or 'family'
+        $expirationHours = request('expiration_hours', 48);
+
+        if (!auth()->user()->orgUser) {
+            return response()->json(['error' => 'No organization assigned'], 400);
+        }
+
+        $registrationService = app(\App\Services\CustomerRegistrationService::class);
+        $token = $registrationService->generateRegistrationToken(
+            auth()->user()->orgUser->org_id,
+            $type,
+            $expirationHours
+        );
+
+        $registrationUrl = route('register.wizard', $token);
+
+        return response()->json([
+            'success' => true,
+            'token' => $token,
+            'url' => $registrationUrl,
+            'expires_at' => now()->addHours($expirationHours)->toISOString(),
+        ]);
+    })->name('generate');
+
+    // Send registration link via SMS
+    Route::post('send-sms', function () {
+        $phoneNumber = request('phone_number');
+        $registrationUrl = request('registration_url');
+        $customerName = request('customer_name', 'Customer');
+
+        if (!$phoneNumber || !$registrationUrl) {
+            return response()->json(['error' => 'Phone number and registration URL are required'], 400);
+        }
+
+        $orgUser = auth()->user()->orgUser;
+        $gymName = $orgUser->org->name ?? 'Wodworx';
+
+        $message = "Hi {$customerName}! Please complete your {$gymName} membership registration: {$registrationUrl}";
+
+        try {
+            $smsService = app(\App\Services\SmsService::class);
+            $success = $smsService->send(
+                to: $phoneNumber,
+                message: $message,
+                orgId: $orgUser->org_id,
+                orgUserId: $orgUser->id,
+                options: [
+                    'subject' => 'Membership Registration Link',
+                    'create_msg_item' => true,
+                ]
+            );
+
+            if ($success) {
+                return response()->json(['success' => true, 'message' => 'SMS sent successfully']);
+            } else {
+                return response()->json(['error' => 'Failed to send SMS'], 500);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Registration link SMS failed', [
+                'error' => $e->getMessage(),
+                'phone' => $phoneNumber,
+                'org_id' => $orgUser->org_id,
+            ]);
+            return response()->json(['error' => 'Failed to send SMS'], 500);
+        }
+    })->name('send.sms');
+
+    // Send registration link via Email
+    Route::post('send-email', function () {
+        $email = request('email');
+        $registrationUrl = request('registration_url');
+        $customerName = request('customer_name', 'Customer');
+
+        if (!$email || !$registrationUrl) {
+            return response()->json(['error' => 'Email and registration URL are required'], 400);
+        }
+
+        $orgUser = auth()->user()->orgUser;
+        $gymName = $orgUser->org->name ?? 'Wodworx';
+
+        try {
+            // Create a simple email (you might want to create a proper Mailable class)
+            \Mail::raw(
+                "Hi {$customerName}!\n\nPlease complete your {$gymName} membership registration by clicking the link below:\n\n{$registrationUrl}\n\nThis link will expire in 48 hours.\n\nBest regards,\n{$gymName} Team",
+                function ($message) use ($email, $customerName, $gymName) {
+                    $message->to($email)
+                           ->subject("{$gymName} - Complete Your Membership Registration");
+                }
+            );
+
+            return response()->json(['success' => true, 'message' => 'Email sent successfully']);
+        } catch (\Exception $e) {
+            \Log::error('Registration link email failed', [
+                'error' => $e->getMessage(),
+                'email' => $email,
+                'org_id' => $orgUser->org_id,
+            ]);
+            return response()->json(['error' => 'Failed to send email'], 500);
+        }
+    })->name('send.email');
+});
+
+// OrgUser Verification routes (renamed to avoid conflict with Laravel's email verification)
+Route::get('/verify/{token}', [App\Http\Controllers\VerificationController::class, 'verify'])->name('orguser.verification.verify');
+Route::get('/verify/{token}/process', function($token) {
+    return redirect()->route('orguser.verification.verify', ['token' => $token, 'process' => 1]);
+})->name('orguser.verification.process');
+Route::post('/verify/create-account', [App\Http\Controllers\VerificationController::class, 'createAccount'])->name('orguser.verification.create-account');
+Route::post('/verify/link-account', [App\Http\Controllers\VerificationController::class, 'linkAccount'])->name('orguser.verification.link-account');
+Route::get('/verify/{uuid}/success', [App\Http\Controllers\VerificationController::class, 'success'])->name('orguser.verification.success');
+
+require __DIR__.'/auth.php';

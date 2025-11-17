@@ -1,0 +1,29 @@
+---
+alwaysApply: true
+---
+# Always read this document /documentation/README.md. Don't make any modifications to the README.md when adding new features. Update the "Key Features Implemented" with major features and functionality that we implement along the way.
+
+# Codging guidelines:
+
+## Code documentation
+1. Write meaningful comments to document and explain the logic. 
+2. Include examples when documenting financial or statistical calculations. 
+3. Don't add noise comments that just explain the syntax
+
+## Forms:
+1. Use flux ui for pure laravel views and forms. 
+2. Use Laravel Filament forms for Filament dashbopards.
+3. When submitting the form show the wait-loader animation on the submit button. Disable the form buttons while it is loading. This keeps the UI simple and prevents double clicking. 
+4. If form submission fails for any reason, re-enable the form buttons and show any error or validation messages.
+5. Create custom Form components inherited from default flux UI componenets. Never use a flux componenet directly. This allows us to customize the flux componenets but updating the custom compnenets on one place.
+
+### Form entry validation
+1. When validating phone number format always use Google libphonenumber library.
+2. When filling out a form for creating or modifying a OrgUser the following should validate to true:
+- full name is unique across the same org.
+- phone number is valid and unique across the same org.
+- email address is valid and unique across the same org.
+3. In multi step forms involving creating more than one OrgUser, all full names, emails, and phone numbers entered must be unique to each other as well as across the org.
+4. OrgUser data validations should include soft deleted OrgUser's, but ignore archived OrgUser's. 
+5. Consider creating custom validators that could be reused elsewhere.
+6. Use client-side validation we well as server-side and any validation errors using meaningful descriptions under each field in the form. 

@@ -1,0 +1,501 @@
+/* Arabic RTL Styles */
+/* This file contains styles specific to Arabic (Right-to-Left) layout */
+/* Chrome custom scrollbar (left side) - activated when <html> gets .chrome-rtl-scroll */
+html.chrome-rtl-scroll[dir="rtl"] { scrollbar-width: none; }
+html.chrome-rtl-scroll[dir="rtl"]::-webkit-scrollbar { width:0!important; height:0!important; }
+html.chrome-rtl-scroll[dir="rtl"] body { padding-left:14px; }
+html.chrome-rtl-scroll[dir="rtl"] #chrome-rtl-scroll-track { position:fixed; inset:0 auto 0 0; width:12px; height:100vh; z-index:9998; background:transparent; display:flex; align-items:flex-start; justify-content:center; pointer-events:none; }
+html.chrome-rtl-scroll[dir="rtl"] #chrome-rtl-scroll-thumb { width:6px; background:rgba(0,0,0,.35); border-radius:6px; margin:0 auto; pointer-events:auto; cursor:pointer; transition:background .15s; }
+html.chrome-rtl-scroll[dir="rtl"] #chrome-rtl-scroll-thumb:hover { background:rgba(0,0,0,.55); }
+@media (prefers-color-scheme: dark){ html.chrome-rtl-scroll[dir="rtl"] #chrome-rtl-scroll-thumb { background:rgba(255,255,255,.35); } html.chrome-rtl-scroll[dir="rtl"] #chrome-rtl-scroll-thumb:hover { background:rgba(255,255,255,.55); } }
+@media (max-width:480px){ html.chrome-rtl-scroll[dir="rtl"] body { padding-left:10px; } html.chrome-rtl-scroll[dir="rtl"] #chrome-rtl-scroll-track { width:10px; } html.chrome-rtl-scroll[dir="rtl"] #chrome-rtl-scroll-thumb { width:5px; }}
+
+/* Base RTL direction */
+html[dir="rtl"] {
+    direction: rtl;
+}
+
+html[dir="rtl"] body {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Typography adjustments for Arabic */
+html[dir="rtl"] {
+    font-family: 'Segoe UI', 'Tahoma', 'Arial', 'Helvetica Neue', sans-serif;
+}
+
+/* Sidebar RTL adjustments */
+html[dir="rtl"] .sidebar {
+    right: 0;
+    left: auto;
+}
+
+html[dir="rtl"] .sidebar-content {
+    text-align: right;
+}
+
+/* Navigation RTL adjustments */
+html[dir="rtl"] .nav-item {
+    text-align: right;
+}
+
+html[dir="rtl"] .nav-icon {
+    margin-left: 0.5rem;
+    margin-right: 0;
+}
+
+/* Form RTL adjustments */
+html[dir="rtl"] .form-input,
+html[dir="rtl"] .form-select,
+html[dir="rtl"] .form-textarea {
+    text-align: right;
+}
+
+html[dir="rtl"] .form-label {
+    text-align: right;
+}
+
+/* Button RTL adjustments */
+html[dir="rtl"] .btn-icon-left {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .btn-icon-right {
+    flex-direction: row;
+}
+
+/* Card RTL adjustments */
+html[dir="rtl"] .card-header {
+    text-align: right;
+}
+
+html[dir="rtl"] .card-content {
+    text-align: right;
+}
+
+/* Modal RTL adjustments */
+html[dir="rtl"] .modal-header {
+    text-align: right;
+}
+
+html[dir="rtl"] .modal-content {
+    text-align: right;
+}
+
+html[dir="rtl"] .modal-close {
+    left: 1rem;
+    right: auto;
+}
+
+/* Table RTL adjustments */
+html[dir="rtl"] table {
+    text-align: right;
+}
+
+html[dir="rtl"] th,
+html[dir="rtl"] td {
+    text-align: right;
+}
+
+/* Flex RTL adjustments */
+html[dir="rtl"] .flex-row-reverse {
+    flex-direction: row;
+}
+
+html[dir="rtl"] .flex-row {
+    flex-direction: row-reverse;
+}
+
+/* Footer and sticky navigation RTL adjustments */
+html[dir="rtl"] .rtl\:flex-row-reverse {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .rtl\:order-1 {
+    order: 1;
+}
+
+html[dir="rtl"] .rtl\:order-2 {
+    order: 2;
+}
+
+/* Fixed positioning for RTL */
+html[dir="rtl"] .rtl\:left-0 {
+    left: 0;
+    right: auto;
+}
+
+html[dir="rtl"] .rtl\:lg\:right-64 {
+    right: 16rem; /* 64 = 16rem */
+    left: auto;
+}
+
+@media (min-width: 1024px) {
+    html[dir="rtl"] .rtl\:lg\:right-64 {
+        right: 16rem;
+        left: auto;
+    }
+}
+
+/* Margin and Padding RTL adjustments */
+html[dir="rtl"] .ml-auto {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+html[dir="rtl"] .mr-auto {
+    margin-right: 0;
+    margin-left: auto;
+}
+
+html[dir="rtl"] .pl-4 {
+    padding-left: 0;
+    padding-right: 1rem;
+}
+
+html[dir="rtl"] .pr-4 {
+    padding-right: 0;
+    padding-left: 1rem;
+}
+
+/* Text alignment */
+html[dir="rtl"] .text-left {
+    text-align: right;
+}
+
+html[dir="rtl"] .text-right {
+    text-align: left;
+}
+
+/* Border radius RTL adjustments */
+html[dir="rtl"] .rounded-l-lg {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+html[dir="rtl"] .rounded-r-lg {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+}
+
+/* Dropdown RTL adjustments */
+html[dir="rtl"] .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+/* Search input RTL adjustments */
+html[dir="rtl"] .search-input {
+    text-align: right;
+    padding-right: 2.5rem;
+    padding-left: 1rem;
+}
+
+html[dir="rtl"] .search-icon {
+    right: 0.75rem;
+    left: auto;
+}
+
+/* Avatar and profile RTL adjustments */
+html[dir="rtl"] .avatar-with-text {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .avatar-text {
+    text-align: right;
+    margin-right: 0;
+    margin-left: 0.75rem;
+}
+
+/* Notification and toast RTL adjustments */
+html[dir="rtl"] .toast {
+    right: auto;
+    left: 1rem;
+}
+
+html[dir="rtl"] .notification-icon {
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+/* Member list RTL adjustments */
+html[dir="rtl"] .member-card {
+    text-align: right;
+}
+
+html[dir="rtl"] .member-avatar {
+    margin-left: 0;
+    margin-right: 0.75rem;
+}
+
+html[dir="rtl"] .member-info {
+    text-align: right;
+}
+
+/* Dashboard RTL adjustments */
+html[dir="rtl"] .dashboard-stats {
+    text-align: right;
+}
+
+html[dir="rtl"] .stat-icon {
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+/* Settings RTL adjustments */
+html[dir="rtl"] .settings-nav {
+    text-align: right;
+}
+
+html[dir="rtl"] .settings-content {
+    text-align: right;
+}
+
+/* Language switcher RTL adjustments */
+html[dir="rtl"] .language-switcher {
+    text-align: right;
+}
+
+html[dir="rtl"] .language-flag {
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+/* Check-in modal RTL adjustments */
+html[dir="rtl"] .check-in-modal {
+    text-align: right;
+}
+
+html[dir="rtl"] .member-search {
+    text-align: right;
+}
+
+/* Responsive RTL adjustments */
+@media (max-width: 768px) {
+    html[dir="rtl"] .mobile-menu {
+        right: 0;
+        left: auto;
+    }
+    
+    html[dir="rtl"] .mobile-menu-toggle {
+        right: 1rem;
+        left: auto;
+    }
+}
+
+/* Custom scrollbar for RTL */
+html[dir="rtl"] ::-webkit-scrollbar {
+    width: 8px;
+}
+
+html[dir="rtl"] ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+html[dir="rtl"] ::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+html[dir="rtl"] ::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Arabic font improvements */
+html[dir="rtl"] .arabic-text {
+    font-family: 'Segoe UI', 'Tahoma', 'Arial Unicode MS', sans-serif;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+}
+
+/* Fix for common Flux components in RTL */
+html[dir="rtl"] .flux-button {
+    text-align: center;
+}
+
+html[dir="rtl"] .flux-input {
+    text-align: right;
+}
+
+html[dir="rtl"] .flux-select {
+    text-align: right;
+}
+
+html[dir="rtl"] .flux-modal {
+    text-align: right;
+}
+
+html[dir="rtl"] .flux-card {
+    text-align: right;
+}
+
+html[dir="rtl"] .flux-navlist {
+    text-align: right;
+}
+
+html[dir="rtl"] .flux-heading {
+    text-align: right;
+}
+
+html[dir="rtl"] .flux-text {
+    text-align: right;
+}
+
+/* Membership Wizard RTL adjustments */
+html[dir="rtl"] .wizard-progress {
+    direction: rtl;
+}
+
+html[dir="rtl"] .wizard-step {
+    text-align: right;
+}
+
+html[dir="rtl"] .wizard-step-icon {
+    margin-left: 0.75rem;
+    margin-right: 0;
+}
+
+html[dir="rtl"] .wizard-step-text {
+    text-align: right;
+}
+
+html[dir="rtl"] .wizard-content {
+    text-align: right;
+}
+
+html[dir="rtl"] .form-grid {
+    text-align: right;
+}
+
+html[dir="rtl"] .form-field {
+    text-align: right;
+}
+
+html[dir="rtl"] .summary-sidebar {
+    text-align: right;
+}
+
+html[dir="rtl"] .summary-item {
+    text-align: right;
+}
+
+html[dir="rtl"] .summary-label {
+    text-align: right;
+}
+
+html[dir="rtl"] .summary-value {
+    text-align: right;
+}
+
+/* Grid layout RTL adjustments */
+html[dir="rtl"] .grid {
+    direction: rtl;
+}
+
+html[dir="rtl"] .grid > * {
+    direction: ltr;
+}
+
+html[dir="rtl"] .grid > * > * {
+    direction: rtl;
+}
+
+/* Step indicator RTL */
+html[dir="rtl"] .step-indicator {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .step-connector {
+    order: 2;
+}
+
+html[dir="rtl"] .step-content {
+    order: 1;
+}
+
+/* Payment method grid RTL */
+html[dir="rtl"] .payment-method-grid {
+    direction: rtl;
+}
+
+html[dir="rtl"] .payment-method-card {
+    text-align: right;
+}
+
+/* Mobile summary RTL */
+html[dir="rtl"] .mobile-summary {
+    text-align: right;
+}
+
+html[dir="rtl"] .mobile-summary-toggle {
+    text-align: right;
+}
+
+/* Progress steps RTL spacing */
+html[dir="rtl"] .progress-step .ml-3 {
+    margin-left: 0;
+    margin-right: 0.75rem;
+}
+
+/* Footer navigation RTL positioning */
+html[dir="rtl"] .footer-nav {
+    left: 0 !important;
+    right: 0 !important;
+}
+
+@media (min-width: 1024px) {
+    html[dir="rtl"] .footer-nav {
+        left: 0 !important;
+        right: 16rem !important; /* 64 * 0.25rem = 16rem */
+    }
+}
+
+/* Flux dropdown positioning for RTL */
+
+
+/* Ensure dropdown options are right-aligned in RTL */
+[dir="rtl"] [data-flux-option],
+html[dir="rtl"] [data-flux-option] {
+    text-align: right !important;
+    direction: rtl !important;
+}
+
+/* Aggressive Flux dropdown positioning for RTL - force under trigger */
+html[dir="rtl"] [data-flux-options] {
+    position: absolute !important;
+    transform: none !important;
+    left: 0 !important;
+    right: auto !important;
+    inset: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Reset any Popper transforms that move dropdowns off-screen */
+html[dir="rtl"] [data-popper-placement] {
+    transform: translateX(0) translateY(0) !important;
+}
+
+/* Force dropdown to inherit trigger width and position */
+html[dir="rtl"] [data-flux-select] [data-flux-options] {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Scroll to top button RTL positioning */
+html[dir="rtl"] #scroll-to-top {
+    right: auto !important;
+    left: 1.5rem !important; /* 24px = 1.5rem */
+}
+
+/* General RTL positioning for fixed bottom-right elements */
+html[dir="rtl"] .fixed.bottom-6.right-6 {
+    right: auto !important;
+    left: 1.5rem !important;
+}

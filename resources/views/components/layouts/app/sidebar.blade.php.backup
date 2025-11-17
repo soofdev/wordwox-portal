@@ -1,0 +1,510 @@
+@php
+use App\Services\LanguageCssService;
+$htmlAttributes = LanguageCssService::getHtmlAttributes();
+$languageClasses = LanguageCssService::getLanguageCssClasses();
+@endphp
+<!DOCTYPE html>
+<html lang="{{ $htmlAttributes['lang'] }}" dir="{{ $htmlAttributes['dir'] }}" class="dark {{ $languageClasses }}">
+<head>
+    @include('partials.head')
+    {!! LanguageCssService::generateInlineCss() !!}
+</head>
+<body class="min-h-screen bg-white dark:bg-zinc-800 {{ $languageClasses }}">
+    <!-- Environment Indicator -->
+    <x-environment-indicator />
+
+    <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+        <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+
+        <a href="{{ route('dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
+            <x-app-logo />
+        </a>
+
+
+        <flux:navlist variant="outline">
+            <flux:navlist.group heading="Navigation" class="grid">
+                <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>Dashboard</flux:navlist.item>
+            </flux:navlist.group>
+        </flux:navlist>
+
+
+        <flux:spacer />
+
+
+
+        <!-- Desktop User Menu -->
+        <flux:dropdown class="hidden lg:block" position="bottom" align="start">
+            <flux:profile :name="auth()->user()->orgUser->fullName" :initials="auth()->user()->orgUser->initials" icon-trailing="chevron-down" />
+
+            <flux:menu class="w-[220px]">
+                <flux:menu.radio.group>
+                    <div class="p-0 text-sm font-normal">
+                        <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                            <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
+                                <span class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                    {{ auth()->user()->orgUser->initials }}
+                                </span>
+
+    <!-- RTL Flux Select Position Fix (Simplified) -->
+    <script>
+        (function() {
+            if (document.documentElement.getAttribute('dir') !== 'rtl') return;
+            
+            function fixDropdownPosition() {
+                const panels = document.querySelectorAll('[data-flux-options]');
+                panels.forEach(panel => {
+                    // Find the parent select container
+                    const selectContainer = panel.closest('[data-flux-select]') || 
+                                          document.querySelector('[data-flux-select-trigger][aria-expanded="true"]')?.closest('[data-flux-select]');
+                    
+                    if (selectContainer) {
+                        // Force the dropdown to position relative to its container
+                        panel.style.position = 'absolute';
+                        panel.style.top = '100%';
+                        panel.style.left = '0';
+                        panel.style.right = 'auto';
+                        panel.style.width = '100%';
+                        panel.style.transform = 'none';
+                        panel.style.zIndex = '9999';
+                        
+                        // Ensure the container is positioned
+                        selectContainer.style.position = 'relative';
+                    }
+                });
+            }
+            
+            // Run on mutations
+            const observer = new MutationObserver(fixDropdownPosition);
+            observer.observe(document.body, { childList: true, subtree: true });
+            
+            // Run on interactions
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('[data-flux-select-trigger]')) {
+                    setTimeout(fixDropdownPosition, 10);
+                }
+            });
+            
+            // Initial run
+            setTimeout(fixDropdownPosition, 100);
+        })();
+    </script>
+                            </span>
+
+                            <div class="grid flex-1 text-start text-sm leading-tight">
+                                <span class="truncate font-semibold">{{ auth()->user()->orgUser->fullName }}</span>
+                                <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </flux:menu.radio.group>
+
+                <flux:menu.separator />
+
+                <flux:menu.radio.group>
+                    @if(optional(auth()->user()->orgUser)?->safeHasPermissionTo('select gym'))
+                    <flux:menu.item :href="route('org-user.select')" icon="building-office-2" wire:navigate>{{ __('gym.Select Gym') }}</flux:menu.item>
+                    @endif
+                    <flux:menu.item :href="route('settings.appearance')" icon="cog" wire:navigate>{{ __('gym.Settings') }}</flux:menu.item>
+                </flux:menu.radio.group>
+
+                <flux:menu.separator />
+
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    @csrf
+                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                        {{ __('gym.Logout') }}
+                    </flux:menu.item>
+                </form>
+            </flux:menu>
+        </flux:dropdown>
+    </flux:sidebar>
+
+    <!-- Mobile User Menu -->
+    <flux:header class="lg:hidden">
+        <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+
+        <flux:spacer />
+
+        <flux:dropdown position="top" align="end">
+            <flux:profile :initials="auth()->user()->orgUser->initials" icon-trailing="chevron-down" />
+
+            <flux:menu>
+                <flux:menu.radio.group>
+                    <div class="p-0 text-sm font-normal">
+                        <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                            <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
+                                <span class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                    {{ auth()->user()->orgUser->initials }}
+                                </span>
+                            </span>
+
+                            <div class="grid flex-1 text-start text-sm leading-tight">
+                                <span class="truncate font-semibold">{{ auth()->user()->orgUser->fullName }}</span>
+                                <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </flux:menu.radio.group>
+
+                <flux:menu.separator />
+
+                <flux:menu.radio.group>
+                    @if(optional(auth()->user()->orgUser)?->safeHasPermissionTo('select gym'))
+                    <flux:menu.item :href="route('org-user.select')" icon="building-office-2" wire:navigate>{{ __('gym.Select Gym') }}</flux:menu.item>
+                    @endif
+                    <flux:menu.item :href="route('settings.appearance')" icon="cog" wire:navigate>{{ __('gym.Settings') }}</flux:menu.item>
+                </flux:menu.radio.group>
+
+                <flux:menu.separator />
+
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    @csrf
+                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                        {{ __('gym.Logout') }}
+                    </flux:menu.item>
+                </form>
+            </flux:menu>
+        </flux:dropdown>
+    </flux:header>
+
+    {{ $slot }}
+
+    @fluxScripts
+
+    <!-- Global Language Change Handler -->
+    <script>
+        document.addEventListener('livewire:init', function() {
+            // Global listener for language changes
+            Livewire.on('language-changed', (event) => {
+                console.log('Global language change detected:', event);
+
+                // Update page title and meta if needed
+                const {
+                    language
+                    , locale
+                    , isRtl
+                } = event[0];
+
+                // Update any global elements that might need language updates
+                setTimeout(() => {
+                    // Refresh navigation items that might have translations
+                    const navItems = document.querySelectorAll('[wire\\:navigate]');
+                    navItems.forEach(item => {
+                        // Force re-evaluation of any dynamic content
+                        if (item.hasAttribute('wire:id')) {
+                            try {
+                                const wireId = item.getAttribute('wire:id');
+                                if (wireId && window.Livewire) {
+                                    window.Livewire.find(wireId).$refresh();
+                                }
+                            } catch (error) {
+                                console.warn('Could not refresh component:', error);
+                            }
+                        }
+                    });
+                }, 100);
+            });
+
+        });
+
+        // Initialize Flux with proper timing
+        document.addEventListener('livewire:navigated', function() {
+            // Wait for Flux to be fully loaded
+            setTimeout(function() {
+                console.log('Checking Flux availability...');
+                console.log('window.Flux:', typeof window.Flux);
+                console.log('window.$flux:', typeof window.$flux);
+                console.log('Alpine:', typeof window.Alpine);
+
+                // Comprehensive Flux Pro detection
+                if (typeof window.Flux !== 'undefined') {
+                    console.log('🚀 Flux Pro object details:');
+                    console.log('- Constructor:', window.Flux.constructor.name);
+                    console.log('- Own properties:', Object.getOwnPropertyNames(window.Flux));
+                    console.log('- Prototype properties:', Object.getOwnPropertyNames(window.Flux.__proto__ || {}));
+
+                    // Check for toast method specifically
+                    if (typeof window.Flux.toast === 'function') {
+                        console.log('✅ Flux.toast method is available (Flux Pro feature)');
+                    } else {
+                        console.log('❌ Flux.toast method not found - Flux Pro may not be loaded');
+                    }
+
+                    // Check for other Pro features
+                    const proFeatures = ['toast', 'modal', 'autocomplete', 'editor'];
+                    const availableProFeatures = proFeatures.filter(feature => typeof window.Flux[feature] === 'function');
+                    console.log('- Available Flux Pro features:', availableProFeatures);
+                }
+
+                // Check if Flux is available through Alpine
+                if (typeof window.Alpine !== 'undefined' && window.Alpine.store && window.Alpine.store('flux')) {
+                    console.log('✅ Flux is available through Alpine store');
+                } else if (typeof window.$flux !== 'undefined' && window.$flux.toast) {
+                    console.log('✅ Flux toast is available directly');
+                } else {
+                    console.warn('❌ Flux toast is not available through standard methods');
+                    console.log('Available globals:', Object.keys(window).filter(key => key.toLowerCase().includes('flux')));
+                }
+            }, 100);
+        });
+
+        // Also check on initial load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                console.log('Initial Flux check...');
+                if (typeof window.$flux !== 'undefined') {
+                    console.log('✅ $flux is available on DOMContentLoaded');
+                } else {
+                    console.log('❌ $flux not available yet on DOMContentLoaded');
+                }
+            }, 500);
+        });
+
+        // Custom toast function as reliable fallback
+        window.showCustomToast = function(message, variant = 'success') {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 transform translate-x-full opacity-0`;
+
+            // Set colors based on variant
+            if (variant === 'success') {
+                toast.className += ' bg-green-600';
+            } else if (variant === 'danger' || variant === 'error') {
+                toast.className += ' bg-red-600';
+            } else if (variant === 'warning') {
+                toast.className += ' bg-yellow-600';
+            } else {
+                toast.className += ' bg-blue-600';
+            }
+
+            toast.textContent = message;
+
+            // Add to DOM
+            document.body.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            }, 10);
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 4000);
+
+            console.log('✅ Custom toast shown:', message);
+        };
+
+        // Test function for manual toast testing
+        window.testToast = function(message = 'Test toast message', variant = 'success') {
+            console.log('🧪 Testing toast manually...');
+
+            // Try the official Flux methods first
+            if (typeof window.Flux !== 'undefined' && window.Flux.toast) {
+                console.log('Using window.Flux.toast for test');
+                window.Flux.toast(message, {
+                    variant: variant
+                });
+            } else {
+                console.log('Falling back to Livewire dispatch for test');
+                Livewire.dispatch('show-toast', {
+                    message: message
+                    , variant: variant
+                });
+            }
+        };
+
+        // Test function for simple message
+        window.testSimpleToast = function(message = 'Simple test') {
+            console.log('🧪 Testing simple toast...');
+            if (typeof window.Flux !== 'undefined' && window.Flux.toast) {
+                window.Flux.toast(message);
+            } else {
+                alert(message);
+            }
+        };
+
+        // Global toast event listener
+        document.addEventListener('livewire:initialized', function() {
+            Livewire.on('show-toast', function(event) {
+                console.log('🍞 Toast event received:', event);
+
+                const data = Array.isArray(event) ? event[0] : event;
+                const message = data.message || 'Notification';
+                const variant = data.variant || 'success';
+
+                // Try multiple approaches to show toast
+                let toastShown = false;
+
+                // Method 1: Try window.Flux global (official Flux UI way)
+                if (typeof window.Flux !== 'undefined' && window.Flux.toast) {
+                    try {
+                        console.log('📱 Trying window.Flux.toast method');
+                        window.Flux.toast(message, {
+                            variant: variant
+                        });
+                        toastShown = true;
+                        console.log('✅ Toast shown via window.Flux.toast');
+                    } catch (e) {
+                        console.log('❌ window.Flux.toast method failed:', e);
+                    }
+                }
+
+                // Method 2: Try Alpine.js $flux magic method
+                if (!toastShown && typeof window.Alpine !== 'undefined') {
+                    try {
+                        console.log('📱 Trying Alpine $flux magic method');
+                        // Use Alpine's evaluate to access $flux magic method
+                        const result = window.Alpine.evaluate(document.body, `$flux.toast('${message.replace(/'/g, "\\'")}', { variant: '${variant}' })`);
+                        toastShown = true;
+                        console.log('✅ Toast shown via Alpine $flux magic method');
+                    } catch (e) {
+                        console.log('❌ Alpine $flux magic method failed:', e);
+                    }
+                }
+
+                // Method 2: Try direct $flux global (if available)
+                if (!toastShown && typeof window.$flux !== 'undefined' && window.$flux.toast) {
+                    try {
+                        console.log('📱 Trying direct $flux method');
+                        window.$flux.toast(message, {
+                            variant: variant
+                        });
+                        toastShown = true;
+                        console.log('✅ Toast shown via $flux');
+                    } catch (e) {
+                        console.log('❌ Direct $flux method failed:', e);
+                    }
+                }
+
+                // Method 3: Try Flux global with comprehensive detection
+                if (!toastShown && typeof window.Flux !== 'undefined') {
+                    try {
+                        console.log('📱 Trying Flux global method');
+                        console.log('Flux object:', window.Flux);
+                        console.log('Flux constructor:', window.Flux.constructor.name);
+                        console.log('Flux prototype:', Object.getOwnPropertyNames(window.Flux.__proto__ || {}));
+
+                        // Check for toast methods more thoroughly
+                        const possibleMethods = ['toast', 'notification', 'showToast', 'notify', 'alert', 'message'];
+                        let foundMethod = null;
+
+                        for (const method of possibleMethods) {
+                            if (typeof window.Flux[method] === 'function') {
+                                foundMethod = method;
+                                console.log(`✅ Found Flux method: ${method}`);
+                                break;
+                            }
+                        }
+
+                        if (foundMethod) {
+                            if (foundMethod === 'toast') {
+                                window.Flux.toast(message, {
+                                    variant: variant
+                                });
+                            } else if (foundMethod === 'notification') {
+                                window.Flux.notification(message, {
+                                    type: variant
+                                });
+                            } else if (foundMethod === 'notify') {
+                                window.Flux.notify(message, variant);
+                            } else {
+                                window.Flux[foundMethod](message);
+                            }
+                            toastShown = true;
+                            console.log(`✅ Toast shown via Flux.${foundMethod}`);
+                        } else {
+                            console.log('❌ No toast methods found in Flux object');
+                            console.log('Available methods:', Object.getOwnPropertyNames(window.Flux).filter(prop => typeof window.Flux[prop] === 'function'));
+                        }
+                    } catch (e) {
+                        console.log('❌ Flux global method failed:', e);
+                    }
+                }
+
+                // Method 4: Try to trigger toast through DOM event
+                if (!toastShown) {
+                    try {
+                        console.log('📱 Trying DOM event method');
+                        const toastEvent = new CustomEvent('flux:toast', {
+                            detail: {
+                                message: message
+                                , variant: variant
+                            }
+                        });
+                        document.dispatchEvent(toastEvent);
+
+                        // Also try finding the toast component directly
+                        const toastComponent = document.querySelector('[data-flux-toast]');
+                        if (toastComponent && toastComponent.__x) {
+                            console.log('📱 Found toast component, trying Alpine method');
+                            toastComponent.__x.$data.show(message, {
+                                variant: variant
+                            });
+                            toastShown = true;
+                            console.log('✅ Toast shown via DOM/Alpine');
+                        }
+                    } catch (e) {
+                        console.log('❌ DOM event method failed:', e);
+                    }
+                }
+
+                // Method 5: Custom toast fallback
+                if (!toastShown) {
+                    console.log('📱 Using custom toast fallback');
+                    showCustomToast(message, variant);
+                    toastShown = true;
+                }
+
+                // Final fallback: Alert (should never reach here)
+                if (!toastShown) {
+                    console.log('📱 Using final alert fallback');
+                    alert(message);
+                }
+            });
+        });
+
+
+        // Simple toast debugging (master branch approach)
+        console.log('🍞 Toast system ready - using Flux Pro with position="top-right"');
+
+    </script>
+
+    <!-- Flash Messages Component (master branch approach) -->
+    <x-flash-messages />
+        @if($htmlAttributes['dir'] === 'rtl')
+        <script>
+        (function(){
+            const html = document.documentElement;
+            if(html.getAttribute('dir') !== 'rtl') return;
+            const isChrome = !!window.chrome && /Chrome\//.test(navigator.userAgent) && !/Edg\//.test(navigator.userAgent);
+            if(!isChrome) return; // Safari/Firefox fine natively
+            if(html.classList.contains('chrome-rtl-scroll')) return;
+            html.classList.add('chrome-rtl-scroll');
+            const track = document.createElement('div'); track.id='chrome-rtl-scroll-track';
+            const thumb = document.createElement('div'); thumb.id='chrome-rtl-scroll-thumb'; track.appendChild(thumb); document.body.appendChild(track);
+            function update(){
+                const dh = html.scrollHeight; const wh = window.innerHeight; const st = window.scrollY || html.scrollTop;
+                const ratio = wh / dh; const minH = 28; const th = Math.max(minH, Math.round(wh * ratio)); thumb.style.height = th+'px';
+                const maxScroll = dh - wh; const travel = wh - th; const top = maxScroll>0 ? (st/maxScroll)*travel : 0; thumb.style.transform='translateY('+top+'px)';
+            }
+            let ticking=false; window.addEventListener('scroll',()=>{ if(!ticking){ requestAnimationFrame(()=>{ update(); ticking=false; }); ticking=true;} }, {passive:true});
+            window.addEventListener('resize', update); update();
+            track.addEventListener('click',e=>{ if(e.target===thumb) return; const rect=track.getBoundingClientRect(); const y=e.clientY-rect.top;
+                const wh=window.innerHeight; const th=thumb.offsetHeight; const travel=wh-th; const dh=html.scrollHeight; const maxScroll=dh-wh;
+                const ratio=travel>0 ? (y-th/2)/travel : 0; const target=Math.min(Math.max(0, ratio*maxScroll), maxScroll); window.scrollTo({top:target, behavior:'smooth'});
+            });
+            let drag=false,startY=0,startScroll=0; thumb.addEventListener('mousedown',e=>{ drag=true; startY=e.clientY; startScroll=window.scrollY||html.scrollTop; document.body.classList.add('select-none'); e.preventDefault(); });
+            window.addEventListener('mouseup',()=>{ if(drag){ drag=false; document.body.classList.remove('select-none'); }});
+            window.addEventListener('mousemove',e=>{ if(!drag) return; const dh=html.scrollHeight; const wh=window.innerHeight; const th=thumb.offsetHeight; const maxScroll=dh-wh; const travel=wh-th; const dy=e.clientY-startY; const delta=(dy/(travel||1))*maxScroll; window.scrollTo({top:Math.min(Math.max(0,startScroll+delta),maxScroll)}); });
+        })();
+        </script>
+        @endif
+</body>
+</html>
