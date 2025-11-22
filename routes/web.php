@@ -42,6 +42,26 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\SetTenantTimezone::c
     
     // Templates
     Route::get('templates', \App\Livewire\TemplatePreview::class)->name('templates');
+    Route::get('templates/manager', \App\Livewire\TemplateManager::class)->name('templates.manager');
+    
+    // Image Upload for CKEditor
+    Route::post('upload-image', function (\Illuminate\Http\Request $request) {
+        $request->validate([
+            'upload' => 'required|image|max:10240', // 10MB max
+        ]);
+
+        if ($request->hasFile('upload')) {
+            $file = $request->file('upload');
+            $path = $file->store('cms/images', 'public');
+            $url = \Illuminate\Support\Facades\Storage::url($path);
+
+            return response()->json([
+                'url' => $url
+            ]);
+        }
+
+        return response()->json(['error' => 'No file uploaded'], 400);
+    })->name('upload-image');
     
     // Sections - Temporarily commented out - components missing
     // Route::get('sections', \App\Livewire\CmsSectionsIndex::class)->name('sections.index');

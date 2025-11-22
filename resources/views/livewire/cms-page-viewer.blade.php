@@ -70,8 +70,8 @@
                                 @case('paragraph')
                                     <div class="paragraph-section py-6">
                                         <div class="container mx-auto px-6">
-                                            <div class="prose prose-lg max-w-none text-gray-700">
-                                                {!! nl2br(e($section->content)) !!}
+                                            <div class="max-w-none text-base leading-relaxed text-gray-700 ck-content">
+                                                {!! $section->content !!}
                                             </div>
                                         </div>
                                     </div>
@@ -207,6 +207,83 @@
                                                 <div class="prose prose-lg max-w-none">
                                                     {!! $section->content !!}
                                                 </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @break
+
+                                @case('video')
+                                    @php
+                                        // Get video data
+                                        $videoData = is_string($section->data) ? json_decode($section->data, true) : ($section->data ?? []);
+                                        if (!is_array($videoData)) {
+                                            $videoData = [];
+                                        }
+                                        $videoUrl = $videoData['video_url'] ?? $section->content ?? '';
+                                        $videoPath = $videoData['video_path'] ?? '';
+                                        $isUploaded = !empty($videoPath);
+                                        
+                                        // Check if it's a YouTube or Vimeo URL
+                                        $isYouTube = preg_match('/(youtube\.com|youtu\.be)/', $videoUrl);
+                                        $isVimeo = preg_match('/vimeo\.com/', $videoUrl);
+                                    @endphp
+                                    <div class="video-section py-12">
+                                        <div class="container mx-auto px-6">
+                                            @if($section->title)
+                                                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-6 text-center">{{ $section->title }}</h2>
+                                            @endif
+                                            
+                                            @if($videoUrl)
+                                                @if($isYouTube || $isVimeo)
+                                                    <!-- YouTube/Vimeo Embed -->
+                                                    <div class="aspect-video w-full max-w-4xl mx-auto">
+                                                        @if($isYouTube)
+                                                            @php
+                                                                // Extract YouTube video ID
+                                                                preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $videoUrl, $matches);
+                                                                $youtubeId = $matches[1] ?? '';
+                                                            @endphp
+                                                            <iframe 
+                                                                class="w-full h-full rounded-lg"
+                                                                src="https://www.youtube.com/embed/{{ $youtubeId }}"
+                                                                frameborder="0"
+                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                allowfullscreen
+                                                            ></iframe>
+                                                        @elseif($isVimeo)
+                                                            @php
+                                                                // Extract Vimeo video ID
+                                                                preg_match('/vimeo\.com\/(\d+)/', $videoUrl, $matches);
+                                                                $vimeoId = $matches[1] ?? '';
+                                                            @endphp
+                                                            <iframe 
+                                                                class="w-full h-full rounded-lg"
+                                                                src="https://player.vimeo.com/video/{{ $vimeoId }}"
+                                                                frameborder="0"
+                                                                allow="autoplay; fullscreen; picture-in-picture"
+                                                                allowfullscreen
+                                                            ></iframe>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <!-- Direct Video File -->
+                                                    <div class="w-full max-w-4xl mx-auto">
+                                                        <video 
+                                                            controls 
+                                                            class="w-full rounded-lg shadow-lg"
+                                                            preload="metadata"
+                                                        >
+                                                            <source src="{{ $isUploaded ? asset('storage/' . $videoPath) : $videoUrl }}" type="video/mp4">
+                                                            <source src="{{ $isUploaded ? asset('storage/' . $videoPath) : $videoUrl }}" type="video/webm">
+                                                            <source src="{{ $isUploaded ? asset('storage/' . $videoPath) : $videoUrl }}" type="video/ogg">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    </div>
+                                                @endif
+                                            @endif
+                                            
+                                            @if($section->subtitle)
+                                                <p class="text-gray-600 mt-4 text-center">{{ $section->subtitle }}</p>
                                             @endif
                                         </div>
                                     </div>

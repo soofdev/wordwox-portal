@@ -22,6 +22,7 @@
         "livewire/flux-pro": "^2.4",
         "livewire/volt": "^1.7.0",
         "owen-it/laravel-auditing": "^14.0",
+        "spatie/laravel-medialibrary": "*",
         "tecnickcom/tcpdf": "^6.10"
     },
     "require-dev": {

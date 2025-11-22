@@ -44,10 +44,25 @@ class CmsSection extends BaseWWModel
     {
         parent::boot();
         
+        // Override BaseWWModel's creating event to prevent org_id from being set
+        // CmsSection doesn't have org_id column - organization is through CmsPage
         static::creating(function ($model) {
+            // Set timestamps
+            if (!$model->isDirty('created_at')) {
+                $model->setCreatedAt($model->freshTimestamp());
+            }
+            if (!$model->isDirty('updated_at')) {
+                $model->setUpdatedAt($model->freshTimestamp());
+            }
+            
+            // Set uuid only if not already set
             if (empty($model->uuid)) {
                 $model->uuid = Str::uuid();
             }
+            
+            // Remove org_id if BaseWWModel set it - CmsSection doesn't have this column
+            // Organization is accessed through the parent CmsPage
+            $model->offsetUnset('org_id');
         });
     }
 

@@ -125,9 +125,9 @@ class Login extends Component
         RateLimiter::clear($this->throttleKey());
         Log::info('✅ Rate limiter cleared');
 
-        // Step 7: Redirect to dashboard
-        $dashboardRoute = route('dashboard');
-        Log::info('🚀 Redirecting to dashboard', [
+        // Step 7: Redirect to CMS admin dashboard
+        $dashboardRoute = route('cms.dashboard');
+        Log::info('🚀 Redirecting to CMS admin dashboard', [
             'redirect_url' => $dashboardRoute,
             'navigate' => false,
             'middleware_will_check' => 'EnsureFohAccess middleware will validate FOH permissions'

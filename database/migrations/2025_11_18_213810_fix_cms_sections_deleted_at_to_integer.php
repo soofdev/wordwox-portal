@@ -12,9 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cms_sections', function (Blueprint $table) {
-            // Change timestamp columns to integers to match BaseWWModel expectations
-            $table->integer('created_at')->change();
-            $table->integer('updated_at')->change();
+            // Change deleted_at column to integer to match BaseWWModel expectations
             $table->integer('deleted_at')->nullable()->change();
         });
     }
@@ -25,9 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('cms_sections', function (Blueprint $table) {
-            // Revert back to timestamp columns
-            $table->timestamp('created_at')->change();
-            $table->timestamp('updated_at')->change();
+            // Revert back to timestamp column
             $table->timestamp('deleted_at')->nullable()->change();
         });
     }

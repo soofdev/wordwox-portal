@@ -23,7 +23,7 @@ $languageClasses = LanguageCssService::getLanguageCssClasses();
         <flux:navlist variant="outline">
             <!-- 📊 Dashboard -->
             @if(Route::has('cms.dashboard'))
-                <flux:navlist.item icon="chart-bar" :href="route('cms.dashboard')" :current="request()->routeIs('cms.dashboard')" wire:navigate>📊 Dashboard</flux:navlist.item>
+                <flux:navlist.item icon="chart-bar" :href="route('cms.dashboard')" :current="request()->routeIs('cms.dashboard')" wire:navigate> Dashboard</flux:navlist.item>
             @else
                 <flux:navlist.item icon="chart-bar" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate> Dashboard</flux:navlist.item>
             @endif
@@ -36,6 +36,11 @@ $languageClasses = LanguageCssService::getLanguageCssClasses();
             <!-- 🎨 Templates -->
             @if(Route::has('cms.templates'))
                 <flux:navlist.item icon="swatch" :href="route('cms.templates')" :current="request()->routeIs('cms.templates')" wire:navigate> Templates</flux:navlist.item>
+            @endif
+
+            <!-- 🎨 Template Manager -->
+            @if(Route::has('cms.templates.manager'))
+                <flux:navlist.item icon="adjustments-horizontal" :href="route('cms.templates.manager')" :current="request()->routeIs('cms.templates.manager')" wire:navigate> Template Manager</flux:navlist.item>
             @endif
 
             <!-- 🧩 Sections -->
@@ -63,15 +68,6 @@ $languageClasses = LanguageCssService::getLanguageCssClasses();
                 <flux:navlist.item icon="document-text" :href="route('logs.index')" :current="request()->routeIs('logs.*')" wire:navigate> Logs</flux:navlist.item>
             @endif
 
-            <flux:spacer />
-
-            <!-- ↪ Logout -->
-            <form method="POST" action="{{ route('logout') }}" class="w-full">
-                @csrf
-                <flux:navlist.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full text-left">
-                    ↪ Logout
-                </flux:navlist.item>
-            </form>
         </flux:navlist>
 
         <flux:spacer />

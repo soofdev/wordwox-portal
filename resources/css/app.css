@@ -142,6 +142,136 @@
     }
 }
 
+/* SortableJS Drag & Drop Styling */
+@layer components {
+    .sortable-ghost {
+        @apply opacity-50;
+    }
+    
+    .sortable-chosen {
+        @apply ring-2 ring-blue-500;
+    }
+    
+    .sortable-drag {
+        @apply shadow-lg;
+    }
+    
+    [data-drag-handle] {
+        @apply cursor-move;
+    }
+    
+    [data-drag-handle]:hover {
+        @apply text-zinc-600 dark:text-zinc-300;
+    }
+}
+
+/* CKEditor 5 Content Styling */
+@layer components {
+    .ck-content {
+        @apply max-w-none text-base leading-relaxed;
+    }
+    
+    .ck-content h1,
+    .ck-content h2,
+    .ck-content h3 {
+        @apply font-bold mt-6 mb-4;
+    }
+    
+    .ck-content h1 {
+        @apply text-3xl;
+    }
+    
+    .ck-content h2 {
+        @apply text-2xl;
+    }
+    
+    .ck-content h3 {
+        @apply text-xl;
+    }
+    
+    .ck-content p {
+        @apply mb-4;
+    }
+    
+    .ck-content ul,
+    .ck-content ol {
+        @apply mb-4 ml-6;
+    }
+    
+    .ck-content li {
+        @apply mb-2;
+    }
+    
+    .ck-content a {
+        @apply text-blue-600 hover:text-blue-800 underline;
+    }
+    
+    .ck-content blockquote {
+        @apply border-l-4 border-gray-300 pl-4 italic my-4;
+    }
+    
+    .ck-content table {
+        @apply w-full border-collapse border border-gray-300 my-4;
+    }
+    
+    .ck-content table td,
+    .ck-content table th {
+        @apply border border-gray-300 px-4 py-2;
+    }
+    
+    .ck-content table th {
+        @apply bg-gray-100 font-semibold;
+    }
+}
+
+/* CKEditor 5 Styling */
+@layer components {
+    /* Ensure CKEditor container is properly sized */
+    .ck-editor {
+        @apply w-full;
+    }
+    
+    /* Style the editor content area */
+    .ck-editor__editable {
+        @apply min-h-[300px];
+    }
+    
+    /* Dark mode support for CKEditor */
+    .dark .ck-editor__editable {
+        @apply bg-zinc-800 text-white;
+    }
+    
+    /* Ensure CKEditor toolbar is visible */
+    .ck-toolbar {
+        @apply border-zinc-200 dark:border-zinc-700;
+    }
+    
+    /* Style CKEditor content output */
+    .ck-content {
+        @apply text-base leading-relaxed;
+    }
+    
+    .ck-content h1, .ck-content h2, .ck-content h3 {
+        @apply font-bold mt-4 mb-2;
+    }
+    
+    .ck-content p {
+        @apply mb-4;
+    }
+    
+    .ck-content ul, .ck-content ol {
+        @apply ml-6 mb-4;
+    }
+    
+    .ck-content table {
+        @apply w-full border-collapse border border-zinc-300 dark:border-zinc-600 my-4;
+    }
+    
+    .ck-content table td, .ck-content table th {
+        @apply border border-zinc-300 dark:border-zinc-600 px-4 py-2;
+    }
+}
+
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }
