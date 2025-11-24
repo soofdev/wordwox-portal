@@ -2,12 +2,19 @@
 
 namespace App\Livewire;
 
+use App\Models\CmsPage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class Dashboard extends Component
 {
+    public $orgName;
+    public $orgId;
+    public $portalId;
+    public $currentTemplate;
+    public $currentTemplateName;
+
     public function mount()
     {
         $user = Auth::user();
@@ -31,6 +38,26 @@ class Dashboard extends Component
         }
 
         Log::info('✅ DASHBOARD SUCCESSFULLY LOADED - User has reached the dashboard');
+        
+        // Get organization and portal info
+        $this->orgId = $user->orgUser->org_id ?? env('CMS_DEFAULT_ORG_ID', 8);
+        $this->portalId = env('CMS_DEFAULT_PORTAL_ID', 1);
+        $this->orgName = $user->orgUser->org->name ?? 'Unknown Organization';
+
+        // Get current template from any published page
+        $this->currentTemplate = CmsPage::where('org_id', $this->orgId)
+            ->where('orgPortal_id', $this->portalId)
+            ->where('status', 'published')
+            ->whereNotNull('template')
+            ->value('template') ?? env('CMS_DEFAULT_THEME', 'modern');
+
+        $templateNames = [
+            'modern' => '🚀 Modern',
+            'classic' => '🏛️ Classic', 
+            'meditative' => '🧘‍♀️ Meditative',
+            'fitness' => '💪 Fitness'
+        ];
+        $this->currentTemplateName = $templateNames[$this->currentTemplate] ?? '🚀 Modern';
     }
 
     public function render()

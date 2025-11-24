@@ -1,8 +1,8 @@
 <div class="min-h-screen bg-white dark:bg-zinc-900">
     <!-- Header -->
     <div class="bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="py-6">
+        <div class="">
+            <div class="py-2">
                 <div class="flex items-center gap-4 mb-6">
                     <!-- Back to Pages Button -->
                     <a href="{{ route('cms.pages.index') }}" 
@@ -1770,6 +1770,24 @@
                             <flux:label>Keywords</flux:label>
                             <flux:input wire:model="seo_keywords" placeholder="keyword1, keyword2, keyword3" />
                         </flux:field>
+                    </div>
+                </flux:card>
+
+                <!-- My Website Link -->
+                <flux:card>
+                    <div class="text-center">
+                        <h3 class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Preview Your Website</h3>
+                        <a href="{{ url('/') }}" 
+                           target="_blank" 
+                           class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                            Visit My Website
+                        </a>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
+                            Opens your public website in a new tab
+                        </p>
                     </div>
                 </flux:card>
             </div>

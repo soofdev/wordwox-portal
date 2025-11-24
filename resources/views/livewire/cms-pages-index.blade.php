@@ -103,22 +103,7 @@
                                         Edit
                                     </flux:button>
                             @endif
-                                    <flux:dropdown>
-                                <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom" />
-                                        <flux:menu>
-                                            <flux:menu.item wire:click="duplicatePage({{ $page->id }})" icon="document-duplicate">
-                                                Duplicate
-                                            </flux:menu.item>
-                                            <flux:menu.separator />
-                                            <flux:menu.item 
-                                                wire:click="deletePage({{ $page->id }})" 
-                                                wire:confirm="Are you sure you want to delete this page?"
-                                                icon="trash" 
-                                                variant="danger">
-                                                Delete
-                                            </flux:menu.item>
-                                        </flux:menu>
-                                    </flux:dropdown>
+        
                                 </div>
                     </flux:table.cell>
                 </flux:table.row>

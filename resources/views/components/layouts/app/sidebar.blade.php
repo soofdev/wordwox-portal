@@ -64,9 +64,18 @@ $languageClasses = LanguageCssService::getLanguageCssClasses();
 
         </flux:navlist>
 
-        <flux:spacer />
 
         <!-- Desktop User Menu -->
+
+        <flux:spacer />
+
+        <!-- 🌐 My Website -->
+     
+
+        <flux:spacer />
+           <flux:navlist variant="outline">
+            <flux:navlist.item icon="globe-alt" href="{{ url('/') }}" target="_blank" class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">  My Website</flux:navlist.item>
+        </flux:navlist>
         <flux:dropdown class="hidden lg:block" position="bottom" align="start">
             <flux:profile :name="auth()->user()->fullName ?? auth()->user()->name" :initials="auth()->user()->orgUser->initials ?? 'U'" icon-trailing="chevron-down" />
 

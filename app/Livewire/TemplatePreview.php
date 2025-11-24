@@ -11,6 +11,8 @@ class TemplatePreview extends Component
     public $selectedTemplate = 'default';
     public $previewPage = null;
     public $availableTemplates = [];
+    public $successMessage = '';
+    public $errorMessage = '';
 
     public function mount()
     {
@@ -95,7 +97,7 @@ class TemplatePreview extends Component
     {
         try {
             if (!$this->selectedTemplate || !isset($this->availableTemplates[$this->selectedTemplate])) {
-                session()->flash('error', 'Please select a valid template first.');
+                $this->errorMessage = 'Please select a valid template first.';
                 return;
             }
 
@@ -120,21 +122,30 @@ class TemplatePreview extends Component
                     'template' => $this->selectedTemplate
                 ]);
                 
-                session()->flash('message', 
-                    'Template "' . $this->availableTemplates[$this->selectedTemplate]['name'] . 
-                    '" applied successfully to all ' . $updatedCount . ' page(s) in your organization!'
-                );
+                $this->successMessage = 'Template "' . $this->availableTemplates[$this->selectedTemplate]['name'] . 
+                    '" applied successfully to all ' . $updatedCount . ' page(s) in your organization!';
                 
-                // Refresh the page to show the success message
-                $this->dispatch('template-applied');
+                // Dispatch toast notification
+                $this->dispatch('show-toast', [
+                    'type' => 'success',
+                    'message' => $this->successMessage
+                ]);
             } else {
                 Log::warning('No pages found to update template for');
-                session()->flash('error', 'No pages found to apply template to. Please create some pages first.');
+                $this->errorMessage = 'No pages found to apply template to. Please create some pages first.';
+                $this->dispatch('show-toast', [
+                    'type' => 'error',
+                    'message' => $this->errorMessage
+                ]);
             }
             
         } catch (\Exception $e) {
             Log::error('Error applying template to all pages: ' . $e->getMessage());
-            session()->flash('error', 'Error applying template: ' . $e->getMessage());
+            $this->errorMessage = 'Error applying template: ' . $e->getMessage();
+            $this->dispatch('show-toast', [
+                'type' => 'error',
+                'message' => $this->errorMessage
+            ]);
         }
     }
 

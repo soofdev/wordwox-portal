@@ -4,17 +4,7 @@
         <p class="text-gray-600 dark:text-gray-300">Choose and preview different templates for your website</p>
     </div>
 
-    @if(session()->has('message'))
-        <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-            {{ session('message') }}
-        </div>
-    @endif
 
-    @if(session()->has('error'))
-        <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            {{ session('error') }}
-        </div>
-    @endif
 
     <!-- Current Template Info -->
     @if($previewPage)
@@ -128,6 +118,30 @@
             </div>
         </div>
 
+    <!-- Visit Website Button -->
+    <div class="mt-6 p-6 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-800 text-center">
+        <div class="mb-4">
+            <h3 class="font-semibold text-gray-900 dark:text-white flex items-center justify-center gap-2">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                Preview Your Website
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                See how your templates look on the live website
+            </p>
+        </div>
+        
+        <a href="{{ url('/') }}" 
+           target="_blank" 
+           class="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+            🌐 Visit My Website
+        </a>
+    </div>
+
     <!-- Template Comparison -->
     @if(!empty($availableTemplates))
     <div class="mt-8">
@@ -220,9 +234,48 @@
             window.open(event.url, '_blank');
         });
         
-        Livewire.on('template-applied', () => {
-            // Scroll to top to show success message
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        Livewire.on('show-toast', (event) => {
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transition-all duration-500 transform translate-x-full opacity-0 ${
+                event.type === 'success' 
+                    ? 'bg-green-50 border border-green-200 text-green-800'
+                    : 'bg-red-50 border border-red-200 text-red-800'
+            }`;
+            
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="flex-shrink-0">
+                        ${
+                            event.type === 'success'
+                                ? '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
+                                : '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'
+                        }
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">${event.message}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
         });
     });
 </script>

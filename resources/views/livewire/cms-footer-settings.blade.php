@@ -1,5 +1,5 @@
-<div class="min-h-screen bg-white dark:bg-zinc-900">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="min-h-screen">
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-zinc-900 dark:text-white mb-2">Footer Settings</h1>
             <p class="text-zinc-600 dark:text-zinc-400">Manage your website footer content and information</p>
