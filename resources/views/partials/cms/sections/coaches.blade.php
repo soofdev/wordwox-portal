@@ -121,7 +121,7 @@
                         </div>
                     </div>
                 @endforeach
-            </div>
+                </div>
             @endif
         @else
             <div class="text-center py-12 bg-light rounded">
