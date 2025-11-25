@@ -26,9 +26,28 @@
             <div class="max-w-7xl mx-auto px-6">
                 <div class="flex justify-between items-center h-16">
                     <div class="flex items-center">
+                        @php
+                            $orgId = env('CMS_DEFAULT_ORG_ID', 8);
+                            $org = \App\Models\Org::find($orgId);
+                            $orgName = $org?->name ?? config('app.name', 'SuperHero CrossFit');
+                            $orgLogo = $org?->logoFilePath;
+                            
+                            // Construct S3 URL for logo
+                            $logoUrl = null;
+                            if ($orgLogo) {
+                                $bucket = env('AWS_BUCKET', 'wodworx-dev');
+                                $region = env('AWS_DEFAULT_REGION', 'us-east-1');
+                                $logoUrl = "https://{$bucket}.s3.{$region}.amazonaws.com/{$orgLogo}";
+                            }
+                        @endphp
                         <div class="flex-shrink-0">
-                            <a href="/" class="text-2xl font-bold text-white neon-glow">
-                                ⚡ {{ config('app.name', 'SuperHero CrossFit') }}
+                            <a href="/" class="text-2xl font-bold text-white neon-glow flex items-center">
+                                @if($logoUrl)
+                                    <img src="{{ $logoUrl }}" alt="{{ $orgName }}" class="me-2" style="height: 32px; width: auto;">
+                                @else
+                                    ⚡ 
+                                @endif
+                                {{ $orgName }}
                             </a>
                         </div>
 

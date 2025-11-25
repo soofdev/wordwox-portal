@@ -93,9 +93,27 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-fitness fixed-top">
         <div class="container">
+            @php
+                $orgId = env('CMS_DEFAULT_ORG_ID', 8);
+                $org = \App\Models\Org::find($orgId);
+                $orgName = $org?->name ?? config('app.name', 'Wodworx');
+                $orgLogo = $org?->logoFilePath;
+                
+                // Construct S3 URL for logo
+                $logoUrl = null;
+                if ($orgLogo) {
+                    $bucket = env('AWS_BUCKET', 'wodworx-dev');
+                    $region = env('AWS_DEFAULT_REGION', 'us-east-1');
+                    $logoUrl = "https://{$bucket}.s3.{$region}.amazonaws.com/{$orgLogo}";
+                }
+            @endphp
             <a class="navbar-brand fw-bold fs-3" href="/">
-                <i class="fas fa-dumbbell text-danger me-2"></i>
-                Wodworx
+                @if($logoUrl)
+                    <img src="{{ $logoUrl }}" alt="{{ $orgName }}" class="me-2" style="height: 40px; width: auto;">
+                @else
+                    <i class="fas fa-dumbbell text-danger me-2"></i>
+                @endif
+                {{ $orgName }}
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

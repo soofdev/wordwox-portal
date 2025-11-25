@@ -33,7 +33,30 @@
         <div class="container">
             <div class="row m-auto">
                 <div class="col-12 w-100 text-center">
-                    <a class="navbar-brand w-100" href="/">{{ config('app.name', 'Meditative') }}</a>
+                    @php
+                        $orgId = env('CMS_DEFAULT_ORG_ID', 8);
+                        $org = \App\Models\Org::find($orgId);
+                        $orgName = $org?->name ?? config('app.name', 'Meditative');
+                        $orgLogo = $org?->logoFilePath;
+                        
+                        // Construct S3 URL for logo
+                        $logoUrl = null;
+                        if ($orgLogo) {
+                            $bucket = env('AWS_BUCKET', 'wodworx-dev');
+                            $region = env('AWS_DEFAULT_REGION', 'us-east-1');
+                            $logoUrl = "https://{$bucket}.s3.{$region}.amazonaws.com/{$orgLogo}";
+                        }
+                    @endphp
+                    <a class="navbar-brand w-100" href="/">
+                        @if($logoUrl)
+                            <div class="d-flex align-items-center justify-content-center">
+                                <img src="{{ $logoUrl }}" alt="{{ $orgName }}" class="me-2" style="height: 35px; width: auto;">
+                                <span>{{ $orgName }}</span>
+                            </div>
+                        @else
+                            {{ $orgName }}
+                        @endif
+                    </a>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="oi oi-menu"></span> Menu
                     </button>
