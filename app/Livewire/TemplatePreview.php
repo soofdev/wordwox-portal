@@ -64,27 +64,12 @@ class TemplatePreview extends Component
                 'preview_color' => 'bg-gradient-to-r from-purple-100 to-pink-100',
                 'features' => ['Glass morphism', 'Neon glows', 'Floating animations']
             ],
-            'classic' => [
-                'name' => 'Classic Template',
-                'description' => 'Elegant Traditional Design',
-                'icon' => '🏛️',
-                'preview_color' => 'bg-gradient-to-r from-amber-100 to-orange-100',
-                'features' => ['Serif typography', 'Gold colors', 'Ornamental design']
-            ],
             'meditative' => [
                 'name' => 'Meditative Template',
                 'description' => 'Zen Wellness Design',
                 'icon' => '🧘‍♀️',
                 'preview_color' => 'bg-gradient-to-r from-purple-100 via-pink-100 to-indigo-100',
                 'features' => ['Zen aesthetics', 'Peaceful colors', 'Mindful animations']
-            ],
-
-            'fitness' => [
-                'name' => 'Fitness Template',
-                'description' => 'Fitness & Yoga Design',
-                'icon' => '💪',
-                'preview_color' => 'bg-gradient-to-r from-green-100 to-teal-100',
-                'features' => ['Fitness layout', 'Yoga classes', 'Bootstrap 4 design']
             ],
         ];
     }
