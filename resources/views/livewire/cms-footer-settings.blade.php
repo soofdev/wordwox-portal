@@ -203,7 +203,7 @@
                                     
                                         <div class="space-y-4">
                                         <div class="text-sm font-medium text-zinc-800 dark:text-white">Navigation Links</div>                                        @foreach($links as $linkIndex => $link)
-                                            <div class="p-4 border border-zinc-200 dark:border-zinc-600 rounded-lg bg-zinc-50 dark:bg-zinc-800/70 hover:bg-zinc-100 dark:hover:bg-zinc-800/90 transition-colors">
+                                            <div class="">
                                                 <div class="flex items-center justify-between mb-3">
                                                     <div class="text-sm font-semibold text-zinc-700 dark:text-white">
                                                         Link {{ $linkIndex + 1 }}

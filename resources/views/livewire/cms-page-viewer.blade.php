@@ -270,94 +270,122 @@
                         <div class="{{ $sectionClassString }}" 
                              id="section-{{ $section->id }}" 
                              style="{{ $sectionStyleString }}">
-                            <div class="{{ $containerClassString }}">
-                            @switch($section->type)
-                                @case('hero')
-                                    @if($isMeditative)
-                                        {{-- Meditative Template Hero Slider --}}
-                                        <section class="home-slider js-fullheight owl-carousel">
-                                            <div class="slider-item js-fullheight" style="background-image:url({{ asset('images/bg_1.jpg') }});">
-                                                <div class="overlay"></div>
+                            @if($section->type === 'hero' && ($isMeditative || $isFitness))
+                                {{-- Hero sections don't need the container wrapper --}}
+                                @switch($section->type)
+                                    @case('hero')
+                                        @if($isMeditative)
+                                            {{-- Meditative Template Hero Slider --}}
+                                            <section class="home-slider js-fullheight owl-carousel">
+                                                <div class="slider-item js-fullheight" style="background-image:url({{ asset('images/bg_1.jpg') }});">
+                                                    <div class="overlay"></div>
+                                                    <div class="container">
+                                                        <div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center" data-scrollax-parent="true">
+                                                            <div class="col-md-10 text ftco-animate text-center">
+                                                                @if($section->title)
+                                                                <h1 class="mb-4">{{ $section->title }}</h1>
+                                                                @endif
+                                                                @if($section->subtitle)
+                                                                <h3 class="subheading">{{ $section->subtitle }}</h3>
+                                                                @endif
+                                                                @if($section->content)
+                                                                <div class="mt-4">{!! $section->content !!}</div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        @elseif($isFitness)
+                                            {{-- Fitness Template Hero Section --}}
+                                            @php
+                                                $settings = is_string($section->settings) ? json_decode($section->settings, true) : ($section->settings ?? []);
+                                                $bgColor = $settings['background_color'] ?? '#ff6b6b';
+                                                $textColor = $settings['text_color'] ?? '#ffffff';
+                                                
+                                                // Use gradient as default if no custom background is set
+                                                $useGradient = !isset($settings['background_color']) || $settings['background_color'] === '#ff6b6b';
+                                                $backgroundStyle = $useGradient 
+                                                    ? 'background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);' 
+                                                    : 'background-color: ' . $bgColor . ';';
+                                            @endphp
+                                            <section class="hero-section-custom" style="{{ $backgroundStyle }} color: {{ $textColor }}; padding: 100px 0;">
                                                 <div class="container">
-                                                    <div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center" data-scrollax-parent="true">
-                                                        <div class="col-md-10 text ftco-animate text-center">
+                                                    <div class="row align-items-center justify-content-center text-center" style="min-height: 600px;">
+                                                        <div class="col-lg-10">
                                                             @if($section->title)
-                                                            <h1 class="mb-4">{{ $section->title }}</h1>
+                                                            <h1 class="display-2 fw-bold mb-4" style="color: {{ $textColor }};">{{ $section->title }}</h1>
                                                             @endif
                                                             @if($section->subtitle)
-                                                            <h3 class="subheading">{{ $section->subtitle }}</h3>
+                                                            <h3 class="mb-4" style="color: {{ $textColor }};">{{ $section->subtitle }}</h3>
                                                             @endif
                                                             @if($section->content)
-                                                            <div class="mt-4">{!! $section->content !!}</div>
+                                                            <div class="lead mb-5" style="color: {{ $textColor }};">{!! $section->content !!}</div>
                                                             @endif
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </section>
-                                    @elseif($isFitness)
-                                        {{-- Fitness Template Hero Section --}}
-                                        <section class="hero-section">
-                                            <div class="container">
-                                                <div class="row align-items-center justify-content-center text-center" style="min-height: 600px;">
-                                                    <div class="col-lg-10">
-                                                        @if($section->title)
-                                                        <h1 class="display-2 fw-bold text-white mb-4">{{ $section->title }}</h1>
-                                                        @endif
-                                                        @if($section->subtitle)
-                                                        <h3 class="text-white mb-4">{{ $section->subtitle }}</h3>
-                                                        @endif
-                                                        @if($section->content)
-                                                        <div class="lead text-white mb-5">{!! $section->content !!}</div>
-                                                        @endif
-                                                        <div class="mt-5">
-                                                            <a href="#about" class="btn btn-fitness btn-lg me-3">Get Started</a>
-                                                            <a href="#packages" class="btn btn-outline-light btn-lg">View Plans</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </section>
-                                    @else
-                                    @php
-                                        $settings = is_string($section->settings) ? json_decode($section->settings, true) : ($section->settings ?? []);
-                                        $bgColor = $settings['background_color'] ?? '#1f2937';
-                                        $textColor = $settings['text_color'] ?? '#ffffff';
-                                    @endphp
-                                    @if($section->title)
-                                        <h1 class="text-5xl md:text-6xl font-bold mb-6">{{ $section->title }}</h1>
-                                    @endif
-                                    @if($section->subtitle)
-                                        <p class="text-xl md:text-2xl mb-8 opacity-90">{{ $section->subtitle }}</p>
-                                    @endif
-                                    @if($section->content)
-                                        <div class="text-lg mb-8 max-w-3xl mx-auto">{!! $section->content !!}</div>
-                                    @endif
-                                    @endif
-                                    @break
+                                            </section>
+                                        @endif
+                                        @break
+                                @endswitch
+                            @else
+                                {{-- All other sections use the container wrapper --}}
+                                <div class="{{ $containerClassString }}">
+                                @switch($section->type)
+                                    @case('hero')
+                                        @php
+                                            $settings = is_string($section->settings) ? json_decode($section->settings, true) : ($section->settings ?? []);
+                                            $bgColor = $settings['background_color'] ?? '#1f2937';
+                                            $textColor = $settings['text_color'] ?? '#ffffff';
+                                        @endphp
+                                        @if($section->title)
+                                            <h1 class="text-5xl md:text-6xl font-bold mb-6">{{ $section->title }}</h1>
+                                        @endif
+                                        @if($section->subtitle)
+                                            <p class="text-xl md:text-2xl mb-8 opacity-90">{{ $section->subtitle }}</p>
+                                        @endif
+                                        @if($section->content)
+                                            <div class="text-lg mb-8 max-w-3xl mx-auto">{!! $section->content !!}</div>
+                                        @endif
+                                        @break
 
-                                @case('heading')
-                                    <div class="heading-section py-8">
-                                        <div class="container mx-auto px-6">
-                                            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ $section->content }}</h2>
+                                    @case('heading')
+                                        <div class="heading-section py-8">
+                                            <div class="container mx-auto px-6">
+                                                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ $section->content }}</h2>
+                                            </div>
                                         </div>
                                     </div>
-                                    @break
+                                </div>
+                                @break
 
                                 @case('paragraph')
-                                    <div class="max-w-none text-base leading-relaxed text-gray-700 ck-content">
-                                        {!! $section->content !!}
+                                <div class="{{ $sectionClassString }}" 
+                                     id="section-{{ $section->id }}" 
+                                     style="{{ $sectionStyleString }}">
+                                    <div class="{{ $containerClassString }}">
+                                        <div class="max-w-none text-base leading-relaxed text-gray-700 ck-content">
+                                            {!! $section->content !!}
+                                        </div>
                                     </div>
-                                    @break
+                                </div>
+                                @break
 
                                 @case('quote')
-                                    <blockquote class="text-2xl md:text-3xl italic text-gray-700 mb-6">
-                                        "{{ $section->content }}"
-                                    </blockquote>
-                                    @if($section->title)
-                                        <cite class="text-lg text-gray-600">— {{ $section->title }}</cite>
-                                    @endif
-                                    @break
+                                <div class="{{ $sectionClassString }}" 
+                                     id="section-{{ $section->id }}" 
+                                     style="{{ $sectionStyleString }}">
+                                    <div class="{{ $containerClassString }}">
+                                        <blockquote class="text-2xl md:text-3xl italic text-gray-700 mb-6">
+                                            "{{ $section->content }}"
+                                        </blockquote>
+                                        @if($section->title)
+                                            <cite class="text-lg text-gray-600">— {{ $section->title }}</cite>
+                                        @endif
+                                    </div>
+                                </div>
+                                @break
 
                                 @case('list')
                                     @php
@@ -450,6 +478,14 @@
                                             'xl' => 'h-96 md:h-[32rem]',
                                             default => 'h-64 md:h-72'
                                         };
+                                        
+                                        $heightPixels = match($height) {
+                                            'small' => '200',
+                                            'medium' => '300', 
+                                            'large' => '400',
+                                            'xl' => '500',
+                                            default => '300'
+                                        };
                                     @endphp
                                     <div class="banner-section">
                                         @if($bannerImageUrl)
@@ -457,12 +493,14 @@
                                                 <a href="{{ $linkUrl }}" class="block overflow-hidden">
                                                     <img src="{{ $bannerImageUrl }}" 
                                                          alt="{{ $altText ?: 'Banner image' }}" 
+                                                         height="{{ $heightPixels }}"
                                                          class="w-full {{ $heightClass }} object-cover hover:scale-105 transition-transform duration-300">
                                                 </a>
                                             @else
                                                 <div class="overflow-hidden">
                                                     <img src="{{ $bannerImageUrl }}" 
                                                          alt="{{ $altText ?: 'Banner image' }}" 
+                                                         height="{{ $heightPixels }}"
                                                          class="w-full {{ $heightClass }} object-cover">
                                                 </div>
                                             @endif
@@ -515,6 +553,7 @@
                                             <div class="{{ $widthClass }}">
                                                 <img src="{{ $imageUrl }}" 
                                                      alt="{{ $altText }}" 
+                                                     height="400"
                                                      class="w-full {{ $heightClass }} object-cover rounded-lg shadow-lg">
                                                 @if($section->title)
                                                     <p class="text-center text-gray-600 mt-4 text-lg">{{ $section->title }}</p>
@@ -1363,6 +1402,7 @@
                                                                 <div class="w-full h-64 bg-gray-200 overflow-hidden">
                                                                     <img src="{{ $photoUrl }}" 
                                                                          alt="{{ $coach->fullName }}" 
+                                                                         height="256"
                                                                          class="w-full h-full object-cover">
                                                                 </div>
                                                             @else
@@ -1576,7 +1616,7 @@
                                         <p class="text-xl text-gray-600 mb-8 text-center">{{ $section->subtitle }}</p>
                                     @endif
                                     
-                                    @if($showDateNavigation)
+                                    @if($showDateNavigation && $eventsByDate->count() > 0)
                                         @php
                                             $currentUrl = request()->url();
                                             $urlParams = request()->except('date');
@@ -1701,8 +1741,8 @@
                                             @endif
                                         </div>
                                     </div>
-                            @endswitch
-                            </div>
+                                @endswitch
+                            @endif
                         </div>
                     @endforeach
                 </div>
