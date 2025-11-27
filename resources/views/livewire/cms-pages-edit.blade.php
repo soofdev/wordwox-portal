@@ -1418,6 +1418,7 @@
                                     </div>
 
                                     <!-- Section Customization -->
+                                    @if(!in_array($block['type'], ['coaches', 'schedule', 'packages']))
                                     @php
                                         $settingsJson = $block['settings_json'] ?? '{}';
                                         $settings = is_array($settingsJson) ? $settingsJson : json_decode($settingsJson, true) ?? [];
@@ -1655,6 +1656,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @endif
 
                                 @else
                                     <div class="text-center py-12">
