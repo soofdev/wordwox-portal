@@ -230,8 +230,8 @@
     <!-- Flux Toast Component -->
     <flux:toast position="top end" />
 
-    <script>
-        document.addEventListener('livewire:init', () => {
+<script>
+    document.addEventListener('livewire:init', () => {
             // Handle preview template in new tab
             Livewire.on('open-preview', (...params) => {
                 // In Livewire 3, event data can be passed as named parameters
@@ -246,7 +246,7 @@
                     }
                 }
                 window.open(url, '_blank');
-            });
         });
-    </script>
+    });
+</script>
 </div>

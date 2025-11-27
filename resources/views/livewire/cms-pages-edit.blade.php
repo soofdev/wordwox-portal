@@ -53,21 +53,58 @@
                     id="blocks-container"
                     class="space-y-6"
                     x-data="{
+                        allCollapsed: false,
                         init() {
                             this.$nextTick(() => {
                                 if (window.initBlockSortable) {
                                     window.initBlockSortable('blocks-container');
                                 }
                             });
+                        },
+                        expandAll() {
+                            this.allCollapsed = false;
+                            this.$dispatch('expand-all-blocks');
+                        },
+                        collapseAll() {
+                            this.allCollapsed = true;
+                            this.$dispatch('collapse-all-blocks');
                         }
                     }"
+                    @expand-all-blocks.window="allCollapsed = false"
+                    @collapse-all-blocks.window="allCollapsed = true"
                 >
+                    @if(count($blocks) > 0)
+                        <!-- Expand/Collapse All Controls -->
+                        <div class="flex items-center justify-end gap-2 mb-4">
+                            <flux:button 
+                                @click="$dispatch('expand-all-blocks')"
+                                variant="ghost" 
+                                size="sm" 
+                                icon="chevron-down"
+                                class="text-zinc-600 dark:text-zinc-400"
+                            >
+                                Expand All
+                            </flux:button>
+                            <flux:button 
+                                @click="$dispatch('collapse-all-blocks')"
+                                variant="ghost" 
+                                size="sm" 
+                                icon="chevron-right"
+                                class="text-zinc-600 dark:text-zinc-400"
+                            >
+                                Collapse All
+                            </flux:button>
+                        </div>
+                    @endif
                     @forelse($blocks as $index => $block)
                         <flux:card 
                             class="group relative"
                             data-block-index="{{ $index }}"
                             data-block-uuid="{{ $block['uuid'] ?? '' }}"
                             id="block-{{ $index }}"
+                            x-data="{ collapsed: false }"
+                            @expand-all-blocks.window="collapsed = false"
+                            @collapse-all-blocks.window="collapsed = true"
                         >
                             <!-- Block/Section Header -->
                             <div class="flex items-center justify-between mb-4 pb-4 border-b border-zinc-200 dark:border-zinc-700">
@@ -100,37 +137,53 @@
                                     </div>
                                 </div>
                                 
-                                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <flux:button 
-                                        wire:click="moveBlockUp({{ $index }})" 
-                                        wire:loading.attr="disabled"
-                                        variant="ghost" 
-                                        size="xs" 
-                                        icon="chevron-up"
-                                        @if($index === 0) disabled @endif
-                                    />
-                                    <flux:button 
-                                        wire:click="moveBlockDown({{ $index }})" 
-                                        wire:loading.attr="disabled"
-                                        variant="ghost" 
-                                        size="xs" 
-                                        icon="chevron-down"
-                                        @if($index === count($blocks) - 1) disabled @endif
-                                    />
+                                <div class="flex items-center gap-1">
+                                    <button 
+                                        type="button"
+                                        @click="collapsed = !collapsed"
+                                        class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-8 w-8"
+                                        :title="collapsed ? 'Expand' : 'Collapse'"
+                                    >
+                                        <svg x-show="!collapsed" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                        <svg x-show="collapsed" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </button>
                                     <flux:separator vertical />
-                                    <flux:modal.trigger name="delete-block-{{ $index }}">
+                                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <flux:button 
+                                            wire:click="moveBlockUp({{ $index }})" 
+                                            wire:loading.attr="disabled"
                                             variant="ghost" 
                                             size="xs" 
-                                            icon="trash"
-                                            class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                            icon="chevron-up"
+                                            @if($index === 0) disabled @endif
                                         />
-                                    </flux:modal.trigger>
+                                        <flux:button 
+                                            wire:click="moveBlockDown({{ $index }})" 
+                                            wire:loading.attr="disabled"
+                                            variant="ghost" 
+                                            size="xs" 
+                                            icon="chevron-down"
+                                            @if($index === count($blocks) - 1) disabled @endif
+                                        />
+                                        <flux:separator vertical />
+                                        <flux:modal.trigger name="delete-block-{{ $index }}">
+                                            <flux:button 
+                                                variant="ghost" 
+                                                size="xs" 
+                                                icon="trash"
+                                                class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                            />
+                                        </flux:modal.trigger>
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Block Content -->
-                            <div class="space-y-4">
+                            <div class="space-y-4" x-show="!collapsed" x-transition>
                                 @if($block['type'] === 'heading')
                                     <flux:field>
                                         <flux:label>Heading Text</flux:label>
