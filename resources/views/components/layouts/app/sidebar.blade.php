@@ -22,7 +22,7 @@ $languageClasses = LanguageCssService::getLanguageCssClasses();
 
         <flux:navlist variant="outline">
             <!-- 📊 Dashboard -->
-            <flux:navlist.item icon="chart-bar" :href="route('cms.dashboard')" :current="request()->routeIs('cms.dashboard')" wire:navigate> CMS Dashboard</flux:navlist.item>
+            <flux:navlist.item icon="chart-bar" :href="route('cms.dashboard')" :current="request()->routeIs('cms.dashboard')" wire:navigate> Dashboard</flux:navlist.item>
 
             <!-- 📄 Pages -->
             @if(Route::has('cms.pages.index'))

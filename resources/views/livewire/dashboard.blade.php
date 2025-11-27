@@ -80,7 +80,7 @@
     <!-- Portal Info -->
     <div class="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-zinc-700 flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">CMS Dashboard Admin</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Dashboard</h3>
             <a href="{{ url('/cms-admin') }}" 
                class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors"
                wire:navigate>

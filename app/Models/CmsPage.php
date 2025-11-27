@@ -17,7 +17,6 @@ class CmsPage extends BaseWWModel
     protected $fillable = [
         'uuid',
         'org_id',
-        'orgPortal_id',
         'title',
         'slug',
         'description',
@@ -73,14 +72,6 @@ class CmsPage extends BaseWWModel
     public function org(): BelongsTo
     {
         return $this->belongsTo(Org::class);
-    }
-
-    /**
-     * Get the portal this page belongs to
-     */
-    public function portal(): BelongsTo
-    {
-        return $this->belongsTo(OrgPortal::class, 'orgPortal_id');
     }
 
     /**
