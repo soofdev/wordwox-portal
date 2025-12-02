@@ -33,7 +33,7 @@
             </div>
 
             <div class="text-center">
-                <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                <a href="{{ route('cms.login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
                     Back to Sign in
                 </a>
             </div>

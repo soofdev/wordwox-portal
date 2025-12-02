@@ -66,7 +66,7 @@
                             <a href="/dashboard" class="text-white/90 hover:text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-all">📊 Dashboard</a>
                             <a href="/cms-admin" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-full text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all neon-glow">⚙️ CMS</a>
                         @else
-                            <a href="/login" class="text-white/90 hover:text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-all">🔐 Login</a>
+                            <a href="{{ route('cms.login') }}" class="text-white/90 hover:text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-all">🔐 Login</a>
                             <a href="/packages" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-full text-sm font-medium hover:from-blue-600 hover:to-purple-600 transition-all neon-glow">🚀 Get Started</a>
                         @endauth
                     </div>

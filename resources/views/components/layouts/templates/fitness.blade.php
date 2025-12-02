@@ -1142,11 +1142,11 @@
                     <!-- Authentication Links -->
                     @guest
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('register') ? 'active fw-bold' : '' }}" 
-                               href="{{ route('register') }}">Signup</a>
+                            <a class="nav-link {{ request()->is('customer/signup') ? 'active fw-bold' : '' }}" 
+                               href="{{ route('customer.signup') }}">Signup</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('login') ? 'active fw-bold' : '' }}" 
+                            <a class="nav-link {{ request()->is('login') || request()->is('customer/verify-otp') ? 'active fw-bold' : '' }}" 
                                href="{{ route('login') }}">Login</a>
                         </li>
                     @else

@@ -46,10 +46,10 @@ class EnsureFohAccess
         ]);
 
         if (!$isAuthenticated) {
-            Log::warning('❌ User not authenticated - redirecting to login', [
-                'redirect_to' => route('login')
+            Log::warning('❌ User not authenticated - redirecting to CMS login', [
+                'redirect_to' => route('cms.login')
             ]);
-            return redirect()->route('login');
+            return redirect()->route('cms.login');
         }
 
         // Step 3: Get authenticated user details
@@ -113,7 +113,7 @@ class EnsureFohAccess
         Auth::logout();
         Log::info('🚪 User logged out due to lack of FOH access');
         
-        return redirect()->route('login')->withErrors([
+        return redirect()->route('cms.login')->withErrors([
             'email' => 'You do not have permission to access the Front of House interface. Please contact your administrator to get access.'
         ]);
     }
@@ -125,7 +125,8 @@ class EnsureFohAccess
     {
         // Routes that should skip FOH check
         $skipRoutes = [
-            'login',
+            'cms.login',
+            'login', // Customer login
             'logout', 
             'org-user.select',
             'org-user.set',

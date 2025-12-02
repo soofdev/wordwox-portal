@@ -35,6 +35,18 @@ Route::get('/', \App\Livewire\CmsPageViewer::class)
 // Coach Profile Route (Public - must be BEFORE catch-all to take priority)
 Route::get('coaches/view', \App\Livewire\Customer\CoachProfile::class)->name('coach.view');
 
+// Customer Login Routes (OTP-based, separate from CMS login)
+// Main /login route is for customers
+Route::middleware('guest')->group(function () {
+    Route::get('login', \App\Livewire\Customer\CustomerLogin::class)->name('login');
+});
+
+// Customer routes with prefix
+Route::middleware('guest')->prefix('customer')->name('customer.')->group(function () {
+    Route::get('signup', \App\Livewire\Customer\CustomerSignup::class)->name('signup');
+    Route::get('verify-otp', \App\Livewire\Customer\VerifyOtp::class)->name('verify-otp');
+});
+
 // Customer Portal Routes (Protected - require authentication)
 Route::middleware(['auth'])->prefix('org-plan')->name('customer.')->group(function () {
     Route::get('index', \App\Livewire\Customer\PurchasePlan::class)->name('purchase-plan');
@@ -42,7 +54,7 @@ Route::middleware(['auth'])->prefix('org-plan')->name('customer.')->group(functi
 
 // Catch-all route for CMS pages (GET requests) - now catches /coaches too
 Route::get('{slug}', \App\Livewire\CmsPageViewer::class)
-    ->where('slug', '^(?!dashboard|login|register|cms-admin|portal|cms|org-plan).*$')
+    ->where('slug', '^(?!dashboard|register|cms-admin|portal|cms|org-plan|customer|forgot-password|reset-password|verify-email|confirm-password).*$')
     ->name('page.view');
 
 // CMS Admin Routes (Protected)
