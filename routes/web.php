@@ -10,10 +10,10 @@ if (app()->environment('local') && config('debugbar.enabled')) {
     Route::get('_debugbar/assets/javascript', ['as' => 'debugbar.assets.js', 'uses' => '\Barryvdh\Debugbar\Controllers\AssetController@js']);
 }
 
-// Redirect dashboard to CMS admin dashboard
+// Redirect dashboard to CMS admin dashboard (block customers)
 Route::get('dashboard', function () {
     return redirect()->route('cms.dashboard');
-})->middleware(['auth', 'verified', \App\Http\Middleware\SetTenantTimezone::class])
+})->middleware(['auth', 'verified', \App\Http\Middleware\EnsureNotCustomer::class, \App\Http\Middleware\SetTenantTimezone::class])
     ->name('dashboard');
 
 // CMS Public Routes with /cms/ prefix (for admin reference)
@@ -57,8 +57,8 @@ Route::get('{slug}', \App\Livewire\CmsPageViewer::class)
     ->where('slug', '^(?!dashboard|register|cms-admin|portal|cms|org-plan|customer|forgot-password|reset-password|verify-email|confirm-password).*$')
     ->name('page.view');
 
-// CMS Admin Routes (Protected)
-Route::middleware(['auth', 'verified', \App\Http\Middleware\SetTenantTimezone::class])->prefix('cms-admin')->name('cms.')->group(function () {
+// CMS Admin Routes (Protected - block customers)
+Route::middleware(['auth', 'verified', \App\Http\Middleware\EnsureNotCustomer::class, \App\Http\Middleware\SetTenantTimezone::class])->prefix('cms-admin')->name('cms.')->group(function () {
     Route::get('/', \App\Livewire\CmsAdminDashboard::class)->name('dashboard');
 
     // Pages

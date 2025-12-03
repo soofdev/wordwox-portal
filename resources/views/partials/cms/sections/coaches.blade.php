@@ -232,7 +232,7 @@
             background: var(--fitness-primary, #ff6b6b) !important;
             border: none !important;
             border-color: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-text-light, white) !important;
+            color: var(--fitness-text-light, white) !important; /* Original white text */
             box-shadow: none !important;
         }
         

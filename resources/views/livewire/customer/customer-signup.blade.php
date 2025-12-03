@@ -43,12 +43,12 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Login Method <span class="text-danger">*</span></label>
                                     <div class="btn-group w-100" role="group">
-                                        <input type="radio" class="btn-check" name="loginMethod" id="signupEmail" value="email" wire:model="loginMethod" checked>
+                                        <input type="radio" class="btn-check" name="loginMethod" id="signupEmail" value="email" wire:model.live="loginMethod" checked>
                                         <label class="btn btn-outline-primary" for="signupEmail">
                                             <i class="fas fa-envelope me-2"></i>Email
                                         </label>
                                         
-                                        <input type="radio" class="btn-check" name="loginMethod" id="signupPhone" value="phone" wire:model="loginMethod">
+                                        <input type="radio" class="btn-check" name="loginMethod" id="signupPhone" value="phone" wire:model.live="loginMethod">
                                         <label class="btn btn-outline-primary" for="signupPhone">
                                             <i class="fas fa-phone me-2"></i>Phone
                                         </label>
@@ -57,7 +57,7 @@
                                 
                                 <!-- Email Input (required if email login) -->
                                 @if($loginMethod === 'email')
-                                    <div class="mb-3">
+                                    <div class="mb-3" wire:key="email-input-field">
                                         <label for="email" class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
                                         <input 
                                             type="email" 
@@ -65,29 +65,26 @@
                                             id="email"
                                             wire:model="email"
                                             placeholder="Enter your email address"
-                                            required>
+                                            required
+                                            autofocus>
                                         @error('email')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                @else
-                                    <input type="hidden" wire:model="email">
                                 @endif
                                 
-                                <!-- Phone Input (required if phone login) -->
+                                <!-- Phone Input (required if phone login, optional if email login) -->
                                 @if($loginMethod === 'phone')
-                                    <div class="mb-3">
+                                    <div class="mb-3" wire:key="phone-input-field">
                                         <label for="phoneNumber" class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
                                         <div class="row">
                                             <div class="col-4">
-                                                <select class="form-select @error('phoneCountry') is-invalid @enderror" wire:model="phoneCountry" id="phoneCountry" required>
-                                                    <option value="US">US (+1)</option>
-                                                    <option value="GB">UK (+44)</option>
-                                                    <option value="CA">CA (+1)</option>
-                                                    <option value="AU">AU (+61)</option>
-                                                    <option value="AE">AE (+971)</option>
-                                                    <option value="SA">SA (+966)</option>
-                                                    <option value="JO">JO (+962)</option>
+                                                <select class="form-select @error('phoneCountry') is-invalid @enderror" wire:model.live="phoneCountry" id="phoneCountry" required>
+                                                    @foreach($this->getSupportedCountries() as $code => $country)
+                                                        <option value="{{ $code }}">
+                                                            {{ $country['flag'] }} +{{ $country['code'] }}
+                                                        </option>
+                                                    @endforeach
                                                 </select>
                                                 @error('phoneCountry')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -100,7 +97,8 @@
                                                     id="phoneNumber"
                                                     wire:model="phoneNumber"
                                                     placeholder="Enter phone number"
-                                                    required>
+                                                    required
+                                                    autofocus>
                                                 @error('phoneNumber')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
@@ -114,13 +112,11 @@
                                         <div class="row">
                                             <div class="col-4">
                                                 <select class="form-select" wire:model="phoneCountry" id="phoneCountry">
-                                                    <option value="US">US (+1)</option>
-                                                    <option value="GB">UK (+44)</option>
-                                                    <option value="CA">CA (+1)</option>
-                                                    <option value="AU">AU (+61)</option>
-                                                    <option value="AE">AE (+971)</option>
-                                                    <option value="SA">SA (+966)</option>
-                                                    <option value="JO">JO (+962)</option>
+                                                    @foreach($this->getSupportedCountries() as $code => $country)
+                                                        <option value="{{ $code }}">
+                                                            {{ $country['flag'] }} +{{ $country['code'] }}
+                                                        </option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                             <div class="col-8">
@@ -129,7 +125,7 @@
                                                     class="form-control @error('phoneNumber') is-invalid @enderror" 
                                                     id="phoneNumber"
                                                     wire:model="phoneNumber"
-                                                    placeholder="Enter phone number">
+                                                    placeholder="Enter phone number (optional)">
                                                 @error('phoneNumber')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror

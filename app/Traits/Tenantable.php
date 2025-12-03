@@ -20,7 +20,7 @@ trait Tenantable
             if (!$model->org_id) {
                 if (Auth::check() && Auth::user()->orgUser) {
                     // Use authenticated user's org_id
-                    $model->org_id = Auth::user()->orgUser->org_id;
+                $model->org_id = Auth::user()->orgUser->org_id;
                 } else {
                     // Fallback to environment variable when not authenticated
                     $model->org_id = env('CMS_DEFAULT_ORG_ID', env('DEFAULT_ORG_ID', null));

@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Customer;
 
+use App\Models\CmsPage;
 use App\Models\User;
+use App\Services\Yii2QueueDispatcher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -19,6 +21,7 @@ class VerifyOtp extends Component
     public string $otp = '';
     
     public string $message = '';
+    public $navigationPages;
     
     public function mount()
     {
@@ -26,6 +29,23 @@ class VerifyOtp extends Component
         if (!session()->has('customer_otp_user_id')) {
             return redirect()->route('login');
         }
+        
+        $this->loadNavigationPages();
+    }
+    
+    /**
+     * Load navigation pages for the navbar
+     */
+    protected function loadNavigationPages()
+    {
+        $orgId = env('CMS_DEFAULT_ORG_ID', 8);
+        $this->navigationPages = CmsPage::where('org_id', $orgId)
+            ->where('status', 'published')
+            ->where('show_in_navigation', true)
+            ->where('is_homepage', false)
+            ->where('slug', '!=', 'home')
+            ->orderBy('sort_order', 'asc')
+            ->get();
     }
     
     /**
@@ -74,8 +94,28 @@ class VerifyOtp extends Component
             'org_user_id' => $user->orgUser_id
         ]);
         
-        // Redirect to package purchase page or home
-        return $this->redirect(route('customer.purchase-plan'), navigate: false);
+        // Dispatch Yii2 queue job for customer login (matching Yii pattern)
+        try {
+            $dispatcher = new Yii2QueueDispatcher();
+            $dispatcher->dispatch('common\jobs\user\UserLoginCompleteJob', [
+                'id' => $user->id,
+                'orgUser_id' => $user->orgUser_id
+            ]);
+            
+            Log::info('Customer login Yii2 job dispatched', [
+                'user_id' => $user->id,
+                'org_user_id' => $user->orgUser_id
+            ]);
+        } catch (\Exception $e) {
+            // Log warning but don't fail login for background job issues
+            Log::warning('Failed to dispatch UserLoginCompleteJob', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+        
+        // Redirect to home page after successful login
+        return $this->redirect(route('home'), navigate: false);
     }
     
     public function resendOtp()
@@ -86,7 +126,9 @@ class VerifyOtp extends Component
     public function render()
     {
         return view('livewire.customer.verify-otp')
-            ->layout('components.layouts.templates.fitness');
+            ->layout('components.layouts.templates.fitness', [
+                'navigationPages' => $this->navigationPages ?? collect(),
+            ]);
     }
 }
 

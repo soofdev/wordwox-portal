@@ -667,18 +667,23 @@
             transition: all 0.3s ease;
             background: var(--fitness-primary, #ff6b6b) !important;
             border: none !important;
-            color: var(--fitness-text-light, white) !important;
+            color: var(--fitness-text-light, white) !important; /* White text like view-profile-btn */
+            box-shadow: none !important;
         }
         
-        .contact-submit-btn:hover {
+        .contact-submit-btn:hover:not(:disabled) {
             background: var(--fitness-primary-light) !important;
             border-color: var(--fitness-primary) !important;
-            color: var(--fitness-primary) !important;
+            color: var(--fitness-primary, #ff6b6b) !important;
+            box-shadow: none !important;
         }
         
         .contact-submit-btn:disabled {
+            background: var(--fitness-primary, #ff6b6b) !important;
+            color: var(--fitness-text-light, white) !important;
             opacity: 0.7;
             cursor: not-allowed;
+            box-shadow: none !important;
         }
         
         @media (min-width: 576px) {
@@ -894,13 +899,34 @@
             }
         }
         
-        /* Override Bootstrap btn-primary to use custom theme colors */
+        /* Override Bootstrap btn-primary to match package buttons (same background color) */
         .btn-primary,
         .btn-primary.btn-sm,
-        .btn-primary.btn-lg {
+        .btn-primary.btn-lg,
+        .package-btn,
+        button.btn-primary,
+        button.package-btn,
+        a.btn-primary,
+        a.package-btn {
+            font-size: 0.9rem;
+            padding: 0.625rem 1.25rem;
+            background-color: var(--fitness-primary, #ff6b6b) !important;
             background: var(--fitness-primary, #ff6b6b) !important;
+            border: none !important;
             border-color: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-text-light, white) !important;
+            color: var(--fitness-text-light, white) !important; /* White text like view-profile-btn */
+            box-shadow: none !important;
+            opacity: 1 !important; /* Ensure full opacity, not lighter */
+            filter: none !important; /* Remove any filters that might lighten the color */
+        }
+        
+        /* Ensure login/signup buttons match package buttons exactly */
+        .btn-primary.package-btn,
+        button.btn-primary.package-btn {
+            background-color: var(--fitness-primary, #ff6b6b) !important;
+            background: var(--fitness-primary, #ff6b6b) !important;
+            opacity: 1 !important;
+            filter: none !important;
         }
         
         .btn-primary:hover,
@@ -911,22 +937,34 @@
         .btn-primary.btn-sm:active,
         .btn-primary.btn-lg:hover,
         .btn-primary.btn-lg:focus,
-        .btn-primary.btn-lg:active {
+        .btn-primary.btn-lg:active,
+        .package-btn:hover:not(:disabled) {
             background: var(--fitness-primary-light) !important;
-            border-color: var(--fitness-primary) !important;
-            color: var(--fitness-primary) !important;
+            border-color: var(--fitness-primary, #ff6b6b) !important;
+            color: var(--fitness-primary, #ff6b6b) !important;
+            box-shadow: none !important;
+        }
+        
+        .btn-primary:disabled,
+        .package-btn:disabled {
+            background: var(--fitness-primary, #ff6b6b) !important;
+            color: var(--fitness-text-light, white) !important;
+            opacity: 0.7;
+            cursor: not-allowed;
+            box-shadow: none !important;
         }
         
         /* Responsive Buttons */
         .btn-fitness {
             background: var(--fitness-gradient);
             border: none;
-            color: var(--fitness-text-light);
+            color: var(--fitness-text-light, white) !important; /* White text like view-profile-btn */
             padding: 10px 24px;
             border-radius: 25px;
             font-weight: 600;
             font-size: 0.9rem;
             transition: transform 0.3s ease;
+            box-shadow: none !important;
         }
         
         @media (min-width: 576px) {
@@ -936,10 +974,18 @@
             }
         }
         
-        .btn-fitness:hover {
+        .btn-fitness:hover:not(:disabled) {
             transform: translateY(-2px);
             background: var(--fitness-primary-light);
-            color: var(--fitness-primary);
+            color: var(--fitness-primary, #ff6b6b) !important;
+            box-shadow: none !important;
+        }
+        
+        .btn-fitness:disabled {
+            color: var(--fitness-text-light, white) !important;
+            opacity: 0.7;
+            cursor: not-allowed;
+            box-shadow: none !important;
         }
         
         /* Responsive Cards */
@@ -1168,12 +1214,6 @@
                                 {{ Auth::user()->fullName ?? Auth::user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('cms.dashboard') }}">
-                                        <i class="fas fa-dashboard me-2"></i>Dashboard
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf

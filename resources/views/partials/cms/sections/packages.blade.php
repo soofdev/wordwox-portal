@@ -219,13 +219,23 @@
             padding: 0.625rem 1.25rem;
             background: var(--fitness-primary, #ff6b6b) !important;
             border: none !important;
-            color: var(--fitness-text-light, white) !important;
+            color: var(--fitness-text-light, white) !important; /* White text like view-profile-btn */
+            box-shadow: none !important;
         }
         
-        .package-btn:hover {
+        .package-btn:hover:not(:disabled) {
             background: var(--fitness-primary-light) !important;
             border-color: var(--fitness-primary, #ff6b6b) !important;
             color: var(--fitness-primary, #ff6b6b) !important;
+            box-shadow: none !important;
+        }
+        
+        .package-btn:disabled {
+            background: var(--fitness-primary, #ff6b6b) !important;
+            color: var(--fitness-text-light, white) !important;
+            opacity: 0.7;
+            cursor: not-allowed;
+            box-shadow: none !important;
         }
         
         .package-price-col {

@@ -31,11 +31,10 @@ class TenantScope implements Scope
         if (Auth::check()) {
             $user = Auth::user();
             
-            // Try direct access first (if relationship is loaded)
-            if ($user->orgUser && isset($user->orgUser->org_id)) {
-                $orgId = $user->orgUser->org_id;
-            } elseif ($user->orgUser_id) {
-                // Use a subquery to get the org_id from orgUser table
+            // Check if user has orgUser_id
+            if (isset($user->orgUser_id) && $user->orgUser_id) {
+                // Use subquery to get org_id directly from database
+                // This avoids loading the relationship and potential errors
                 $builder->whereIn($table . '.org_id', function ($query) use ($user) {
                     $query->select('org_id')
                           ->from('orgUser')

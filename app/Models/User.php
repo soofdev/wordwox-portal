@@ -182,6 +182,49 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if this user is a customer-only (not staff/admin/FOH)
+     * Customers should only access customer portal, not CMS
+     * 
+     * @return bool
+     */
+    public function isCustomerOnly(): bool
+    {
+        // If user has no orgUser_id, they can't be a customer
+        if (!$this->orgUser_id) {
+            return false;
+        }
+
+        // Load orgUser relationship to check flags
+        try {
+            $orgUser = $this->orgUser;
+            
+            if (!$orgUser) {
+                return false;
+            }
+
+            // Customer-only means:
+            // - isCustomer = true
+            // - isFohUser = false (no CMS access)
+            // - isStaff = false (not staff)
+            // - isAdmin = false (not admin)
+            // - isOwner = false (not owner)
+            
+            return $orgUser->isCustomer === true 
+                && $orgUser->isFohUser === false 
+                && $orgUser->isStaff === false 
+                && $orgUser->isAdmin === false 
+                && $orgUser->isOwner === false;
+                
+        } catch (\Exception $e) {
+            \Log::error('Error checking if user is customer-only', [
+                'user_id' => $this->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
      * Get the user's effective language
      * Priority: user language_preference -> org default -> env org -> 'en-US'
      * Only works if language feature is enabled for the organization
