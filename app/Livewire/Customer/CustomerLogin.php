@@ -193,12 +193,42 @@ class CustomerLogin extends Component
         if (!$user) {
             // If not found by orgUser_id, check if User exists with same phone number
             // This handles cases where phoneNumber has a unique constraint
-            // Include soft-deleted records to avoid duplicates
-            if ($orgUser->phoneNumber && $orgUser->phoneCountry) {
-                $user = User::withTrashed()
-                    ->where('phoneNumber', $orgUser->phoneNumber)
-                    ->where('phoneCountry', $orgUser->phoneCountry)
-                    ->first();
+            // IMPORTANT: Check by phoneNumber regardless of how user originally signed up (phone or email)
+            // This prevents duplicate User records when user logs in by phone but originally signed up by email
+            if ($orgUser->phoneNumber) {
+                // Strategy 1: Try exact match with phoneCountry (if available)
+                if ($orgUser->phoneCountry) {
+                    $user = User::withTrashed()
+                        ->where('phoneNumber', $orgUser->phoneNumber)
+                        ->where('phoneCountry', $orgUser->phoneCountry)
+                        ->first();
+                }
+                
+                // Strategy 2: Try exact match without phoneCountry (in case phoneNumber is globally unique)
+                if (!$user) {
+                    $user = User::withTrashed()
+                        ->where('phoneNumber', $orgUser->phoneNumber)
+                        ->first();
+                }
+                
+                // Strategy 3: Try normalized phone number (remove leading zeros)
+                if (!$user) {
+                    $normalizedPhone = ltrim($orgUser->phoneNumber, '0');
+                    if ($normalizedPhone !== $orgUser->phoneNumber && $normalizedPhone !== '') {
+                        if ($orgUser->phoneCountry) {
+                            $user = User::withTrashed()
+                                ->where('phoneNumber', $normalizedPhone)
+                                ->where('phoneCountry', $orgUser->phoneCountry)
+                                ->first();
+                        }
+                        
+                        if (!$user) {
+                            $user = User::withTrashed()
+                                ->where('phoneNumber', $normalizedPhone)
+                                ->first();
+                        }
+                    }
+                }
                 
                 if ($user) {
                     // If user is soft-deleted, restore it
@@ -206,20 +236,50 @@ class CustomerLogin extends Component
                         $user->restore();
                         Log::info('Restored soft-deleted User by phone number', [
                             'user_id' => $user->id,
-                            'phone_number' => $orgUser->phoneNumber
+                            'phone_number' => $orgUser->phoneNumber,
+                            'phone_country' => $orgUser->phoneCountry,
+                            'found_phone_number' => $user->phoneNumber,
+                            'found_phone_country' => $user->phoneCountry
                         ]);
                     }
                     
-                    // User exists with this phone number - update orgUser_id if different
+                    // User exists with this phone number - update orgUser_id and other fields if different
+                    // This links the existing User (whether they signed up by phone or email) to the current OrgUser
+                    $updated = false;
                     if ($user->orgUser_id != $orgUser->id) {
-                        Log::info('Updating existing User orgUser_id', [
+                        $user->orgUser_id = $orgUser->id;
+                        $updated = true;
+                        Log::info('Linking existing User to OrgUser (phone number match)', [
                             'user_id' => $user->id,
                             'old_org_user_id' => $user->orgUser_id,
-                            'new_org_user_id' => $orgUser->id
+                            'new_org_user_id' => $orgUser->id,
+                            'phone_number' => $orgUser->phoneNumber
                         ]);
-                        $user->orgUser_id = $orgUser->id;
+                    }
+                    if ($user->fullName != $orgUser->fullName) {
                         $user->fullName = $orgUser->fullName;
+                        $updated = true;
+                    }
+                    if ($user->email != $orgUser->email) {
                         $user->email = $orgUser->email;
+                        $updated = true;
+                    }
+                    // Update phone fields to match OrgUser (in case they differ)
+                    if ($user->phoneNumber != $orgUser->phoneNumber) {
+                        $user->phoneNumber = $orgUser->phoneNumber;
+                        $updated = true;
+                    }
+                    if ($user->phoneCountry != $orgUser->phoneCountry) {
+                        $user->phoneCountry = $orgUser->phoneCountry;
+                        $updated = true;
+                    }
+                    
+                    if ($updated) {
+                        Log::info('Updated existing User with OrgUser data', [
+                            'user_id' => $user->id,
+                            'org_user_id' => $orgUser->id,
+                            'phone_number' => $orgUser->phoneNumber
+                        ]);
                         $user->save();
                     }
                 }
@@ -261,50 +321,100 @@ class CustomerLogin extends Component
                         ]);
                     }
                 } catch (\Illuminate\Database\QueryException $e) {
-                    // Handle unique constraint violation (race condition)
-                    if ($e->getCode() == 23000 && str_contains($e->getMessage(), 'phoneNumber')) {
-                        Log::warning('Unique constraint violation when creating User (race condition)', [
+                    // Handle unique constraint violation (race condition or duplicate phone)
+                    if ($e->getCode() == 23000) {
+                        $errorMessage = $e->getMessage();
+                        Log::warning('Unique constraint violation when creating User', [
                             'org_user_id' => $orgUser->id,
                             'phone_number' => $orgUser->phoneNumber,
-                            'error' => $e->getMessage()
+                            'phone_country' => $orgUser->phoneCountry,
+                            'error' => $errorMessage
                         ]);
                         
-                        // Try to find the existing user again (including soft-deleted)
-                        $user = User::withTrashed()
-                            ->where('phoneNumber', $orgUser->phoneNumber)
-                            ->where('phoneCountry', $orgUser->phoneCountry)
-                            ->first();
+                        // Try to find the existing user by phoneNumber (most common case)
+                        if (str_contains($errorMessage, 'phoneNumber')) {
+                            // Try exact match
+                            $user = User::withTrashed()
+                                ->where('phoneNumber', $orgUser->phoneNumber)
+                                ->first();
+                            
+                            // Try with phoneCountry
+                            if (!$user && $orgUser->phoneCountry) {
+                                $user = User::withTrashed()
+                                    ->where('phoneNumber', $orgUser->phoneNumber)
+                                    ->where('phoneCountry', $orgUser->phoneCountry)
+                                    ->first();
+                            }
+                            
+                            // Try normalized version
+                            if (!$user) {
+                                $normalizedPhone = ltrim($orgUser->phoneNumber, '0');
+                                if ($normalizedPhone !== $orgUser->phoneNumber && $normalizedPhone !== '') {
+                                    $user = User::withTrashed()
+                                        ->where('phoneNumber', $normalizedPhone)
+                                        ->first();
+                                }
+                            }
+                        }
+                        
+                        // If not found by phone, try by orgUser_id (fallback)
+                        if (!$user) {
+                            $user = User::withTrashed()->where('orgUser_id', $orgUser->id)->first();
+                        }
                         
                         if ($user) {
                             // If user is soft-deleted, restore it
                             if ($user->trashed()) {
                                 $user->restore();
+                                Log::info('Restored soft-deleted User after constraint violation', [
+                                    'user_id' => $user->id
+                                ]);
                             }
                             
-                            // Update orgUser_id if different
+                            // Update orgUser_id and other fields if different
+                            $updated = false;
                             if ($user->orgUser_id != $orgUser->id) {
                                 $user->orgUser_id = $orgUser->id;
+                                $updated = true;
+                            }
+                            if ($user->fullName != $orgUser->fullName) {
                                 $user->fullName = $orgUser->fullName;
+                                $updated = true;
+                            }
+                            if ($user->email != $orgUser->email) {
                                 $user->email = $orgUser->email;
+                                $updated = true;
+                            }
+                            
+                            if ($updated) {
                                 $user->save();
+                                Log::info('Updated existing User after constraint violation', [
+                                    'user_id' => $user->id,
+                                    'org_user_id' => $orgUser->id
+                                ]);
                             }
                         } else {
-                            // If we still can't find it, this is unexpected - log and retry once
-                            Log::error('Unique constraint violation but user not found', [
+                            // If we still can't find it, log error but don't throw
+                            Log::error('Unique constraint violation but user not found by any method', [
                                 'org_user_id' => $orgUser->id,
                                 'phone_number' => $orgUser->phoneNumber,
-                                'error' => $e->getMessage()
+                                'phone_country' => $orgUser->phoneCountry,
+                                'error' => $errorMessage
                             ]);
                             
-                            // Retry finding by orgUser_id as fallback
+                            // Last resort: try to find by orgUser_id one more time
                             $user = User::withTrashed()->where('orgUser_id', $orgUser->id)->first();
                             if ($user && $user->trashed()) {
                                 $user->restore();
                             }
                             
+                            // If still no user, we can't proceed - show user-friendly message
                             if (!$user) {
-                                // Last resort: throw the error
-                                throw $e;
+                                $this->message = 'Unable to create login account. Please contact support.';
+                                Log::error('Cannot proceed with login - user not found after constraint violation', [
+                                    'org_user_id' => $orgUser->id
+                                ]);
+                                return;
                             }
                         }
                     } else {
