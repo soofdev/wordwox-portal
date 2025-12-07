@@ -56,6 +56,8 @@ class OrgInvoicePayment extends Model
         'status',
         'gateway',
         'pp',
+        'pp_id',        // MyFatoorah Payment ID
+        'pp_number',    // MyFatoorah Invoice ID
         'paid_at',
         'created_by',
         'isDeleted',

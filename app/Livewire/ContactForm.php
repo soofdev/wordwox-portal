@@ -13,7 +13,7 @@ class ContactForm extends Component
     public $phone = '';
     public $subject = '';
     public $message = '';
-    public $template = 'modern';
+    public $template = 'fitness';
     
     public $showSuccessMessage = false;
 

@@ -26,91 +26,49 @@
         @endif
 
         @if(isset($coaches) && $coaches->count() > 0)
-            @php
-                // Get layout setting from section data (default to grid)
-                $layoutMode = $layout ?? 'grid';
-                
-                // Calculate Bootstrap column classes for both grid and list layouts
-                // Convert columns to integer (handles both string "3" and integer 3)
-                // Ensure we have a valid integer value
-                $columnsValue = $columns ?? 3;
-                if (is_string($columnsValue)) {
-                    $columnsValue = (int)$columnsValue;
-                }
-                $columnsInt = (int)$columnsValue;
-                
-                // Generate Bootstrap column classes based on columns setting
-                // Using explicit col-* classes instead of row-cols-* for better compatibility
-                // Mobile: 1 column, Tablet: 2 columns, Desktop: based on setting
-                $colClasses = match($columnsInt) {
-                    2 => 'col-12 col-sm-6 col-md-6',
-                    4 => 'col-12 col-sm-6 col-md-4 col-lg-3',
-                    default => 'col-12 col-sm-6 col-md-6 col-lg-4' // 3 columns default
-                    };
-            @endphp
-            @if($layoutMode === 'list')
-                {{-- List Layout - Simple view with just image and name (same as grid) --}}
-                <div class="row g-3 g-md-4">
-                    @foreach($coaches as $coach)
-                        <div class="{{ $colClasses }}">
-                            <div class="card border-0 h-100 coach-card text-center">
-                                    @if($showPhoto)
-                                    <div class="coach-img-container position-relative overflow-hidden">
-                                        @if($coach->profileImageUrl)
-                                            <img src="{{ $coach->profileImageUrl }}" 
-                                                 class="card-img-top coach-img" 
-                                                 alt="Coach {{ $coach->fullName }}">
-                                        @elseif($coach->portraitImageUrl)
-                                            <img src="{{ $coach->portraitImageUrl }}" 
-                                                 class="card-img-top coach-img" 
-                                                 alt="Coach {{ $coach->fullName }}">
-                                            @else
-                                            <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light">
-                                                <i class="fas fa-user-tie coach-placeholder-icon text-muted"></i>
-                                            </div>
-                                            @endif
-                                    </div>
-                                @endif
-                                <div class="card-body">
-                                    <h5 class="card-title mb-3 fw-bold" style="{{ $cardTitleStyle }}">{{ $coach->fullName }}</h5>
-                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm view-profile-btn" target="_blank">View Profile</a>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                {{-- Grid Layout - Simple view with just image and name (like Yii project) --}}
-                <div class="row g-3 g-md-4">
-                    @foreach($coaches as $coach)
-                        <div class="{{ $colClasses }}">
-                            <div class="card border-0 h-100 coach-card text-center">
+            {{-- Grid Layout - Matching SuperHero CrossFit Packages Design --}}
+            <div class="row">
+                @foreach($coaches as $coach)
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card plan-card">
                             @if($showPhoto)
                                 <div class="coach-img-container position-relative overflow-hidden">
-                                        @if($coach->profileImageUrl)
-                                            <img src="{{ $coach->profileImageUrl }}" 
-                                                 class="card-img-top coach-img" 
-                                                 alt="Coach {{ $coach->fullName }}">
-                                        @elseif($coach->portraitImageUrl)
-                                            <img src="{{ $coach->portraitImageUrl }}" 
-                                                 class="card-img-top coach-img" 
-                                                 alt="Coach {{ $coach->fullName }}">
+                                    @if($coach->profileImageUrl)
+                                        <img src="{{ $coach->profileImageUrl }}" 
+                                             class="card-img-top coach-img" 
+                                             alt="Coach {{ $coach->fullName }}">
+                                    @elseif($coach->portraitImageUrl)
+                                        <img src="{{ $coach->portraitImageUrl }}" 
+                                             class="card-img-top coach-img" 
+                                             alt="Coach {{ $coach->fullName }}">
                                     @else
-                                            <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light">
-                                                <i class="fas fa-user-tie coach-placeholder-icon text-muted"></i>
+                                        <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light">
+                                            <i class="fas fa-user-tie coach-placeholder-icon text-muted"></i>
                                         </div>
                                     @endif
-                                    </div>
+                                </div>
+                            @endif
+                            <div class="card-body">
+                                <h4 class="card-title">{{ $coach->fullName }}</h4>
+                                @if($coach->title || $coach->bio)
+                                    <p class="card-text text-overflow">
+                                        @if($coach->title)
+                                            {{ $coach->title }}
+                                        @elseif($coach->bio)
+                                            {{ Str::limit(strip_tags($coach->bio), 100) }}
+                                        @endif
+                                    </p>
                                 @endif
-                                <div class="card-body">
-                                    <h5 class="card-title mb-3 fw-bold" style="{{ $cardTitleStyle }}">{{ $coach->fullName }}</h5>
-                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm view-profile-btn" target="_blank">View Profile</a>
+                            </div>
+                            <div class="card-footer">
+                                <a class="btn btn-md btn-block btn-dark" href="{{ route('coach.view', ['id' => $coach->uuid]) }}" target="_blank">
+                                    {{ $viewProfileText ?? 'View Profile' }}
+                                </a>
                             </div>
                         </div>
                     </div>
                 @endforeach
             </div>
-            @endif
         @else
             <div class="text-center py-12 bg-light rounded">
                 <i class="fas fa-users fa-3x text-muted mb-3"></i>
@@ -147,6 +105,62 @@
         .coaches-section .row > [class*="col-"] {
             padding-left: 0.75rem;
             padding-right: 0.75rem;
+        }
+        
+        /* Coach Cards - Matching SuperHero CrossFit Packages Design */
+        .plan-card {
+            height: 350px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0;
+            border: 1px solid rgba(0,0,0,0.125);
+            box-shadow: none !important;
+        }
+        
+        .plan-card .coach-img-container {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .plan-card .coach-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .plan-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+        
+        .plan-card .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #212529;
+        }
+        
+        .plan-card .card-text {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-card .card-body .text-overflow {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .plan-card .card-footer {
+            margin-top: auto;
+            background-color: #fff;
+            border-top: 1px solid rgba(0,0,0,0.125);
+            padding: 1rem;
         }
         
         .coach-card {
@@ -224,15 +238,31 @@
             font-size: 3rem;
         }
         
+        /* View Profile Button - Matching SuperHero CrossFit Dark Button */
+        .plan-card .btn-dark {
+            background-color: #212529 !important;
+            border-color: #212529 !important;
+            color: #ffffff !important;
+            font-size: 0.9rem;
+            padding: 0.625rem 1.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .plan-card .btn-dark:hover:not(:disabled) {
+            background-color: #343a40 !important;
+            border-color: #343a40 !important;
+            transform: translateY(-1px);
+        }
+        
         .view-profile-btn,
         .view-profile-btn.btn-primary,
         .view-profile-btn.btn-primary.btn-sm {
             font-size: 0.9rem;
             padding: 0.625rem 1.25rem;
-            background: var(--fitness-primary, #ff6b6b) !important;
+            background: var(--fitness-primary, #4285F4) !important;
             border: none !important;
-            border-color: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-text-light, white) !important; /* Original white text */
+            border-color: var(--fitness-primary, #4285F4) !important;
+            color: var(--fitness-text-light, white) !important;
             box-shadow: none !important;
         }
         
@@ -242,8 +272,8 @@
         .view-profile-btn:focus,
         .view-profile-btn:active {
             background: var(--fitness-primary-light) !important;
-            border-color: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-primary, #ff6b6b) !important;
+            border-color: var(--fitness-primary, #4285F4) !important;
+            color: var(--fitness-primary, #4285F4) !important;
             box-shadow: none !important;
         }
         

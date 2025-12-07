@@ -77,6 +77,8 @@ class TemplatePreview extends Component
                 'bg_packages' => $themeColor->bg_packages,
                 'bg_coaches' => $themeColor->bg_coaches,
                 'bg_footer' => $themeColor->bg_footer,
+                'bg_navbar' => $themeColor->bg_navbar,
+                'text_navbar' => $themeColor->text_navbar,
             ];
         } else {
             $this->themeColors = [];
@@ -86,20 +88,6 @@ class TemplatePreview extends Component
     public function loadAvailableTemplates()
     {
         $this->availableTemplates = [
-            'modern' => [
-                'name' => 'Modern Template',
-                'description' => 'Futuristic Glass Design',
-                'icon' => '🚀',
-                'preview_color' => 'bg-gradient-to-r from-purple-100 to-pink-100',
-                'features' => ['Glass morphism', 'Neon glows', 'Floating animations']
-            ],
-            'meditative' => [
-                'name' => 'Meditative Template',
-                'description' => 'Zen Wellness Design',
-                'icon' => '🧘‍♀️',
-                'preview_color' => 'bg-gradient-to-r from-purple-100 via-pink-100 to-indigo-100',
-                'features' => ['Zen aesthetics', 'Peaceful colors', 'Mindful animations']
-            ],
             'fitness' => [
                 'name' => 'Fitness Template',
                 'description' => 'Modern Gym & Fitness Design',
@@ -134,15 +122,17 @@ class TemplatePreview extends Component
             $themeColor = TemplateThemeColor::getOrCreateForOrg($orgId, 'fitness');
             
             $themeColor->update([
-                'primary_color' => $this->themeColors['primary_color'] ?? '#ff6b6b',
-                'secondary_color' => $this->themeColors['secondary_color'] ?? '#4ecdc4',
-                'text_base' => $this->themeColors['text_base'] ?? '#333',
+                'primary_color' => $this->themeColors['primary_color'] ?? '#4285F4',
+                'secondary_color' => $this->themeColors['secondary_color'] ?? '#e03e2d',
+                'text_base' => $this->themeColors['text_base'] ?? '#212529',
                 'text_light' => $this->themeColors['text_light'] ?? '#ffffff',
-                'text_footer' => $this->themeColors['text_footer'] ?? '#ffffff',
+                'text_footer' => $this->themeColors['text_footer'] ?? '#6c757d',
                 'bg_white' => $this->themeColors['bg_white'] ?? '#ffffff',
-                'bg_packages' => $this->themeColors['bg_packages'] ?? '#f2f4f6',
-                'bg_coaches' => $this->themeColors['bg_coaches'] ?? '#f8f9fa',
-                'bg_footer' => $this->themeColors['bg_footer'] ?? '#2c3e50',
+                'bg_packages' => $this->themeColors['bg_packages'] ?? '#f5f5f5',
+                'bg_coaches' => $this->themeColors['bg_coaches'] ?? '#f5f5f5',
+                'bg_footer' => $this->themeColors['bg_footer'] ?? '#f5f5f5',
+                'bg_navbar' => $this->themeColors['bg_navbar'] ?? '#212529',
+                'text_navbar' => $this->themeColors['text_navbar'] ?? '#ffffff',
             ]);
             
             $this->successMessage = 'Theme colors saved successfully!';

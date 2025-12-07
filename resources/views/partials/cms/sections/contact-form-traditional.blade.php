@@ -88,8 +88,35 @@
         @enderror
     </div>
 
-    {{-- Captcha can be added here if needed --}}
-    {{-- For now, we'll skip captcha but you can add Google reCAPTCHA or similar --}}
+    {{-- Verification Code (CAPTCHA) --}}
+    <div class="form-group field-contactform-verification required mb-3">
+        <label for="contactform-verification" class="form-label contact-form-label">Verification Code</label>
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <input type="text" 
+                       id="contactform-verification" 
+                       class="form-control contact-form-input @error('verification_code') is-invalid @enderror" 
+                       name="verification_code" 
+                       value="{{ old('verification_code') }}"
+                       autocomplete="off"
+                       aria-required="true"
+                       required>
+                @error('verification_code')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-auto">
+                <img src="{{ route('captcha') }}?t={{ time() }}" 
+                     alt="Verification Code" 
+                     id="captcha-image"
+                     class="border rounded"
+                     style="cursor: pointer; height: 38px;"
+                     onclick="this.src='{{ route('captcha') }}?t=' + Date.now()"
+                     title="Click to refresh">
+            </div>
+        </div>
+        <small class="form-text text-muted">Click on the image to refresh the code</small>
+    </div>
     
     <div class="form-group mt-4">
         <button type="submit" class="btn btn-primary btn-fitness contact-submit-btn" name="contact-button" id="contact-submit-btn">

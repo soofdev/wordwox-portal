@@ -48,7 +48,7 @@ class CmsPageViewer extends Component
             $this->page->title = $previewData['title'] ?? '';
             $this->page->slug = $previewData['slug'] ?? '';
             $this->page->description = $previewData['description'] ?? '';
-            $this->page->template = $previewData['template'] ?? 'modern';
+            $this->page->template = $previewData['template'] ?? 'fitness';
             $this->page->is_homepage = $previewData['is_homepage'] ?? false;
             $this->page->org_id = $previewData['org_id'] ?? $this->orgId;
             $this->page->status = 'published'; // Set to published for preview
@@ -114,18 +114,15 @@ class CmsPageViewer extends Component
         $previewTemplate = request()->get('preview_template');
         
         // Determine which template layout to use - check page, then env variable, then default
-        $template = $previewTemplate ?: ($this->page ? $this->page->template : env('CMS_DEFAULT_THEME', 'modern'));
+        $template = $previewTemplate ?: ($this->page ? $this->page->template : env('CMS_DEFAULT_THEME', 'fitness'));
         
         // Map template names to layout files
         $templateMap = [
-            'modern' => 'components.layouts.templates.modern',
-            'classic' => 'components.layouts.templates.classic', 
-            'meditative' => 'components.layouts.templates.meditative',
             'fitness' => 'components.layouts.templates.fitness',
-            'packages' => 'components.layouts.templates.modern', // Fallback for packages template
+            'packages' => 'components.layouts.templates.fitness', // Fallback for packages template
         ];
         
-        $layoutPath = $templateMap[$template] ?? 'components.layouts.templates.modern';
+        $layoutPath = $templateMap[$template] ?? 'components.layouts.templates.fitness';
         
         return view('livewire.cms-page-viewer', [
             'navigationPages' => $this->navigationPages ?? collect(),

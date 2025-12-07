@@ -27,6 +27,8 @@ class TemplateThemeColor extends Model
         'bg_packages',
         'bg_coaches',
         'bg_footer',
+        'bg_navbar',
+        'text_navbar',
         'primary_hover',
         'secondary_hover',
     ];
@@ -41,23 +43,29 @@ class TemplateThemeColor extends Model
 
     /**
      * Get default theme colors for fitness template
+     * Colors extracted from SuperHero CrossFit website:
+     * - Packages page: https://superhero.wodworx.com/org-plan/index
+     * - About page: https://superhero.wodworx.com/site/about
+     * Navbar uses Bootstrap's navbar-dark bg-dark (rgb(33, 37, 41) = #212529)
      */
     public static function getDefaults(): array
     {
         return [
-            'primary_color' => '#ff6b6b',
-            'secondary_color' => '#4ecdc4',
-            'text_dark' => '#2c3e50',
-            'text_gray' => '#6c757d',
-            'text_base' => '#333',
-            'text_light' => '#ffffff',
-            'text_footer' => '#ffffff',
-            'bg_white' => '#ffffff',
-            'bg_packages' => '#f2f4f6',
-            'bg_coaches' => '#f8f9fa',
-            'bg_footer' => '#2c3e50',
-            'primary_hover' => '#ff5252',
-            'secondary_hover' => '#3db8a8',
+            'primary_color' => '#4285F4',        // Google blue for primary buttons (Buy buttons on packages page)
+            'secondary_color' => '#e03e2d',       // Red accent color (from "Unleash" text on homepage)
+            'text_dark' => '#212529',             // Dark gray/black for headers and dark text (from CSS border colors)
+            'text_gray' => '#6c757d',             // Medium gray for secondary text
+            'text_base' => '#212529',             // Base text color (dark gray/black)
+            'text_light' => '#ffffff',            // White text for dark backgrounds
+            'text_footer' => '#6c757d',           // Gray text for footer
+            'bg_white' => '#ffffff',              // White background
+            'bg_packages' => '#f5f5f5',           // Light gray background for packages section (from CSS)
+            'bg_coaches' => '#f5f5f5',            // Light gray background for coaches section
+            'bg_footer' => '#f5f5f5',             // Light gray footer background
+            'bg_navbar' => '#212529',              // Dark navbar background (Bootstrap bg-dark = rgb(33, 37, 41) from navbar-dark bg-dark on about page)
+            'text_navbar' => '#ffffff',            // White text for navbar (from navbar-dark class on about page)
+            'primary_hover' => '#357ABD',         // Darker blue for primary button hover (from CSS)
+            'secondary_hover' => '#c02d1f',       // Darker red for secondary hover
         ];
     }
 

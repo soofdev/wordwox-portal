@@ -15,8 +15,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Using Bootstrap default system font stack (same as SuperHero CrossFit Yii2 customer portal) -->
     
     <!-- Fitness Template CSS -->
     @vite(['resources/css/fitness.css', 'resources/js/fitness.js'])
@@ -31,18 +30,21 @@
             ->where('template', 'fitness')
             ->first();
         
-        // Use custom colors if available, otherwise use defaults
-        $primaryColor = $themeColor?->primary_color ?? '#ff6b6b';
-        $secondaryColor = $themeColor?->secondary_color ?? '#4ecdc4';
-        $textDark = $themeColor?->text_dark ?? '#2c3e50';
-        $textGray = $themeColor?->text_gray ?? '#6c757d';
-        $textBase = $themeColor?->text_base ?? '#333';
-        $textLight = $themeColor?->text_light ?? '#ffffff';
-        $textFooter = $themeColor?->text_footer ?? '#ffffff';
-        $bgWhite = $themeColor?->bg_white ?? '#ffffff';
-        $bgPackages = $themeColor?->bg_packages ?? '#f2f4f6';
-        $bgCoaches = $themeColor?->bg_coaches ?? '#f8f9fa';
-        $bgFooter = $themeColor?->bg_footer ?? '#2c3e50';
+        // Use custom colors if available, otherwise use SuperHero CrossFit defaults
+        $defaults = \App\Models\TemplateThemeColor::getDefaults();
+        $primaryColor = $themeColor?->primary_color ?? $defaults['primary_color'];
+        $secondaryColor = $themeColor?->secondary_color ?? $defaults['secondary_color'];
+        $textDark = $themeColor?->text_dark ?? $defaults['text_dark'];
+        $textGray = $themeColor?->text_gray ?? $defaults['text_gray'];
+        $textBase = $themeColor?->text_base ?? $defaults['text_base'];
+        $textLight = $themeColor?->text_light ?? $defaults['text_light'];
+        $textFooter = $themeColor?->text_footer ?? $defaults['text_footer'];
+        $bgWhite = $themeColor?->bg_white ?? $defaults['bg_white'];
+        $bgPackages = $themeColor?->bg_packages ?? $defaults['bg_packages'];
+        $bgCoaches = $themeColor?->bg_coaches ?? $defaults['bg_coaches'];
+        $bgFooter = $themeColor?->bg_footer ?? $defaults['bg_footer'];
+        $bgNavbar = $themeColor?->bg_navbar ?? $defaults['bg_navbar'];
+        $textNavbar = $themeColor?->text_navbar ?? $defaults['text_navbar'];
         
         // Convert hex to rgba for opacity variants
         function hexToRgb($hex) {
@@ -87,9 +89,10 @@
             --fitness-shadow: rgba(0, 0, 0, 0.1);
             --fitness-shadow-lg: rgba(0, 0, 0, 0.15);
             
-            /* Navbar Colors */
-            --fitness-navbar-bg: rgba(255, 255, 255, 0.95);
-            --fitness-navbar-bg-scroll: rgba(255, 255, 255, 0.98);
+            /* Navbar Colors (SuperHero CrossFit dark navbar) */
+            --fitness-navbar-bg: {{ $bgNavbar }};
+            --fitness-navbar-bg-scroll: {{ $bgNavbar }};
+            --fitness-navbar-text: {{ $textNavbar }};
             --fitness-navbar-shadow: rgba(0, 0, 0, 0.1);
         }
         
@@ -100,7 +103,7 @@
             background-color: var(--fitness-bg-white);
         }
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
             line-height: 1.6;
             display: flex;
             flex-direction: column;
@@ -120,29 +123,41 @@
             background-color: var(--fitness-bg-white);
         }
         
-        /* Responsive Navbar */
+        /* Responsive Navbar (SuperHero CrossFit dark navbar style) */
         .navbar-fitness {
-            background: var(--fitness-navbar-bg);
+            background: var(--fitness-navbar-bg) !important;
             backdrop-filter: blur(10px);
-           
             padding: 0.75rem 0;
             transition: all 0.3s ease;
         }
         
+        .navbar-fitness .navbar-brand,
+        .navbar-fitness .nav-link {
+            color: var(--fitness-navbar-text) !important;
+        }
+        
+        .navbar-fitness .navbar-brand:hover,
+        .navbar-fitness .nav-link:hover {
+            color: var(--fitness-navbar-text) !important;
+            opacity: 0.8;
+        }
+        
         .navbar-brand {
-            font-size: 1.25rem;
-            display: flex;
-            align-items: center;
+            font-size: 1rem;
+            display: inline-block;
+            color: var(--fitness-navbar-text) !important;
         }
         
         .navbar-brand img {
             height: 35px;
             width: auto;
+            margin-right: 0.5rem;
+            vertical-align: middle;
         }
         
-        /* Mobile Menu Toggler */
+        /* Mobile Menu Toggler (SuperHero dark navbar style) */
         .navbar-toggler {
-            border: 2px solid rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 5px;
             padding: 0.5rem 0.75rem;
             background: transparent;
@@ -150,12 +165,12 @@
         }
         
         .navbar-toggler:focus {
-            box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
             outline: none;
         }
         
         .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2833, 37, 41, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
             width: 1.5em;
             height: 1.5em;
         }
@@ -179,53 +194,127 @@
             }
         }
         
-        /* Nav Links */
+        /* Nav Links (SuperHero CrossFit style - simple, clean) */
         .navbar-nav {
-            gap: 0.5rem;
+            gap: 0;
         }
         
         .nav-link {
-            color: var(--fitness-text-base) !important;
-            font-weight: 500;
-            padding: 0.75rem 1rem !important;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            text-align: center;
+            color: var(--fitness-navbar-text) !important;
+            font-weight: normal;
+            padding: 0.5rem 1rem !important;
+            transition: opacity 0.3s ease;
+            text-align: left;
             display: block;
+            border-radius: 0;
         }
         
         .nav-link:hover {
-            background-color: var(--fitness-primary-light);
-            color: var(--fitness-primary) !important;
-            transform: translateX(5px);
+            color: var(--fitness-navbar-text) !important;
+            opacity: 0.8;
+            background: none;
         }
         
         .nav-link.active {
-            background: var(--fitness-primary-light);
-            color: var(--fitness-primary) !important;
-            font-weight: 600;
-            border-radius: 4px;
+            color: var(--fitness-navbar-text) !important;
+            font-weight: normal;
+            background: none;
         }
         
         .nav-link.active:hover {
-            background: var(--fitness-primary-light);
-            color: var(--fitness-primary) !important;
-            transform: translateX(0);
+            color: var(--fitness-navbar-text) !important;
+            opacity: 0.8;
+        }
+        
+        /* Logout button style (SuperHero CrossFit) */
+        .btn-link.logout {
+            color: var(--fitness-navbar-text) !important;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: none;
+            font-size: inherit;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        
+        .btn-link.logout:hover {
+            color: var(--fitness-navbar-text) !important;
+            opacity: 0.8;
+            text-decoration: none;
         }
         
         @media (min-width: 992px) {
             .nav-link {
                 text-align: left;
-                padding: 0.5rem 1rem !important;
             }
-            
-            .nav-link:hover {
-                transform: translateY(-2px);
-            }
-            
-            .nav-link.active:hover {
-                transform: translateY(-2px);
-            }
+        }
+        
+        /* Hero Carousel Styles (SuperHero CrossFit) */
+        .carousel {
+            position: relative;
+        }
+        
+        .carousel-item {
+            transition: opacity 0.6s ease-in-out;
+        }
+        
+        .carousel-fade .carousel-item {
+            opacity: 0;
+            transition-property: opacity;
+            transform: none;
+        }
+        
+        .carousel-fade .carousel-item.active,
+        .carousel-fade .carousel-item-next.carousel-item-start,
+        .carousel-fade .carousel-item-prev.carousel-item-end {
+            opacity: 1;
+        }
+        
+        .carousel-fade .active.carousel-item-start,
+        .carousel-fade .active.carousel-item-end {
+            opacity: 0;
+        }
+        
+        .carousel-indicators {
+            margin-bottom: 1rem;
+        }
+        
+        .carousel-indicators button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+        
+        .carousel-indicators button.active {
+            background-color: rgba(255, 255, 255, 1);
+        }
+        
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.7;
+        }
+        
+        .carousel-control-prev:hover,
+        .carousel-control-next:hover {
+            opacity: 1;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .carousel-control-prev {
+            left: 20px;
+        }
+        
+        .carousel-control-next {
+            right: 20px;
         }
         
         /* Dropdown Menu Styles */
@@ -1148,8 +1237,8 @@
     </style>
 </head>
 <body class="fitness-template">
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-fitness fixed-top">
+    <!-- Navigation - SuperHero CrossFit Design -->
+    <nav class="navbar navbar-expand-md navbar-fitness fixed-top" id="w1">
         <div class="container">
             @php
                 $orgId = env('CMS_DEFAULT_ORG_ID', 8);
@@ -1165,66 +1254,70 @@
                     $logoUrl = "https://{$bucket}.s3.{$region}.amazonaws.com/{$orgLogo}";
                 }
             @endphp
-            <a class="navbar-brand fw-bold" href="/">
+            <a class="navbar-brand" href="/">
                 @if($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="{{ $orgName }}" class="me-2" style="height: 35px; width: auto; max-height: 40px;">
-                @else
-                <i class="fas fa-dumbbell text-danger me-2"></i>
+                    <img src="{{ $logoUrl }}" alt="{{ $orgName }}" style="height: 35px; width: auto; max-height: 40px;">
                 @endif
-                <span class="d-none d-md-inline">{{ $orgName }}</span>
-                <span class="d-md-none">{{ Str::limit($orgName, 15) }}</span>
+                {{ $orgName }}
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#w1-collapse" aria-controls="w1-collapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- Home Link -->
+            <div id="w1-collapse" class="collapse navbar-collapse">
+                <ul id="w2" class="navbar-nav ms-auto align-items-center nav">
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('/') || request()->is('home') ? 'active fw-bold' : '' }}" 
-                           href="/">Home</a>
+                        <a class="nav-link {{ request()->is('/') || request()->is('home') ? 'active' : '' }}" href="/">Home</a>
                     </li>
                     
-                    <!-- Dynamic Navigation Pages (exclude Home to avoid duplicates) -->
+                    <!-- Dynamic Navigation Pages -->
                     @if(isset($navigationPages) && $navigationPages->count() > 0)
                         @foreach($navigationPages as $navPage)
-                            @if(strtolower($navPage->title) !== 'home' && strtolower($navPage->slug) !== 'home')
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->is($navPage->slug) || request()->is($navPage->slug . '/*') ? 'active fw-bold' : '' }}" 
-                                       href="/{{ $navPage->slug }}">{{ $navPage->title }}</a>
-                                </li>
-                            @endif
+                            @php
+                                $slug = $navPage->slug;
+                                $title = $navPage->title;
+                                $isActive = request()->is($slug) || request()->is($slug . '/*');
+                            @endphp
+                            <li class="nav-item">
+                                <a class="nav-link {{ $isActive ? 'active' : '' }}" href="/{{ $slug }}">{{ $title }}</a>
+                            </li>
                         @endforeach
+                    @else
+                        {{-- Fallback navigation if no pages configured --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('about') ? 'active' : '' }}" href="/about">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('packages') ? 'active' : '' }}" href="/packages">Packages</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('schedule') ? 'active' : '' }}" href="/schedule">Schedule</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('coaches') ? 'active' : '' }}" href="/coaches">Coaches</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('contact-us') ? 'active' : '' }}" href="/contact-us">Contact Us</a>
+                        </li>
                     @endif
                     
                     <!-- Authentication Links -->
                     @guest
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('customer/signup') ? 'active fw-bold' : '' }}" 
-                               href="{{ route('customer.signup') }}">Signup</a>
+                            <a class="nav-link" href="{{ route('customer.signup') }}">Signup</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('login') || request()->is('customer/verify-otp') ? 'active fw-bold' : '' }}" 
-                               href="{{ route('login') }}">Login</a>
+                            <a class="nav-link" href="{{ route('login') }}">Login</a>
                         </li>
                     @else
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle me-1"></i>
-                                {{ Auth::user()->orgUser->fullName ?? Auth::user()->fullName ?? Auth::user()->name }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item text-danger">
-                                            <i class="fas fa-sign-out-alt me-2"></i>Logout
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
+                        <li>
+                            <form action="{{ route('logout') }}" method="post">
+                                @csrf
+                                <button type="submit" class="btn btn-link logout">
+                                    Logout ({{ Auth::user()->orgUser->fullName ?? Auth::user()->name }})
+                                </button>
+                            </form>
                         </li>
                     @endguest
                 </ul>
@@ -1512,14 +1605,15 @@
             });
         });
         
-        // Navbar background on scroll
+        // Navbar background on scroll (SuperHero dark navbar - stays dark)
         window.addEventListener('scroll', function() {
             const navbar = document.querySelector('.navbar-fitness');
             const root = document.documentElement;
+            // For dark navbar, keep it dark on scroll (no change needed)
             if (window.scrollY > 50) {
-                navbar.style.background = getComputedStyle(root).getPropertyValue('--fitness-navbar-bg-scroll') || 'rgba(255, 255, 255, 0.98)';
+                navbar.style.background = getComputedStyle(root).getPropertyValue('--fitness-navbar-bg-scroll') || getComputedStyle(root).getPropertyValue('--fitness-navbar-bg') || '#212529';
             } else {
-                navbar.style.background = getComputedStyle(root).getPropertyValue('--fitness-navbar-bg') || 'rgba(255, 255, 255, 0.95)';
+                navbar.style.background = getComputedStyle(root).getPropertyValue('--fitness-navbar-bg') || '#212529';
             }
         });
         

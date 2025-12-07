@@ -20,26 +20,26 @@ return new class extends Migration
             $table->unsignedBigInteger('org_id');
             $table->string('template')->default('fitness'); // template name (fitness, modern, etc.)
             
-            // Primary Brand Colors
-            $table->string('primary_color')->default('#ff6b6b');
-            $table->string('secondary_color')->default('#4ecdc4');
+            // Primary Brand Colors (SuperHero CrossFit colors from packages page)
+            $table->string('primary_color')->default('#4285F4');        // Google blue for Buy buttons (from packages page CSS)
+            $table->string('secondary_color')->default('#e03e2d');      // Red accent color (from homepage)
             
             // Text Colors
-            $table->string('text_dark')->default('#2c3e50');
+            $table->string('text_dark')->default('#212529');           // Dark gray/black (from CSS border colors)
             $table->string('text_gray')->default('#6c757d');
-            $table->string('text_base')->default('#333');
+            $table->string('text_base')->default('#212529');           // Base text color (dark gray/black)
             $table->string('text_light')->default('#ffffff');
             
             // Background Colors
             $table->string('bg_white')->default('#ffffff');
             $table->string('bg_light')->default('#f8f9fa');
             $table->string('bg_lighter')->default('#e9ecef');
-            $table->string('bg_packages')->default('#f2f4f6');
-            $table->string('bg_footer')->default('#2c3e50');
+            $table->string('bg_packages')->default('#f5f5f5');         // Light gray (from packages page CSS)
+            $table->string('bg_footer')->default('#f5f5f5');             // Light gray footer (from packages page)
             
             // Interactive Colors
-            $table->string('primary_hover')->default('#ff5252');
-            $table->string('secondary_hover')->default('#3db8a8');
+            $table->string('primary_hover')->default('#357ABD');      // Darker blue for hover (from CSS)
+            $table->string('secondary_hover')->default('#c02d1f');       // Darker red for hover
             
             $table->timestamps();
             

@@ -48,15 +48,12 @@ class Dashboard extends Component
         $this->currentTemplate = CmsPage::where('org_id', $this->orgId)
             ->where('status', 'published')
             ->whereNotNull('template')
-            ->value('template') ?? env('CMS_DEFAULT_THEME', 'modern');
+            ->value('template') ?? env('CMS_DEFAULT_THEME', 'fitness');
 
         $templateNames = [
-            'modern' => '🚀 Modern',
-            'classic' => '🏛️ Classic', 
-            'meditative' => '🧘‍♀️ Meditative',
             'fitness' => '💪 Fitness'
         ];
-        $this->currentTemplateName = $templateNames[$this->currentTemplate] ?? '🚀 Modern';
+        $this->currentTemplateName = $templateNames[$this->currentTemplate] ?? '💪 Fitness';
     }
 
     public function render()

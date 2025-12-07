@@ -244,6 +244,47 @@
                 </div>
             </div>
 
+            <!-- Navbar Colors (Header) -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Header / Navbar Colors</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Navbar Background</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.bg_navbar"
+                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.bg_navbar"
+                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                                placeholder="#212529"
+                            >
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Background color for the header/navigation bar</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Navbar Text</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.text_navbar"
+                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.text_navbar"
+                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                                placeholder="#ffffff"
+                            >
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Text color for navigation links and brand</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Action Buttons -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button 
@@ -366,17 +407,8 @@
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                 @switch($templateKey)
-                                    @case('modern')
-                                        Futuristic
-                                        @break
-                                    @case('classic')
-                                        Traditional
-                                        @break
-                                    @case('home')
-                                        Landing
-                                        @break
-                                    @case('packages')
-                                        Sales
+                                    @case('fitness')
+                                        Fitness
                                         @break
                                     @default
                                         Standard
@@ -384,26 +416,8 @@
                             </td>
                             <td class="px-4 py-4 text-sm text-gray-900 dark:text-white">
                                 @switch($templateKey)
-                                    @case('home')
-                                        Homepage, Landing pages
-                                        @break
-                                    @case('packages')
-                                        Pricing, Memberships
-                                        @break
-                                    @case('contact')
-                                        Contact, Location pages
-                                        @break
-                                    @case('coaches')
-                                        Team, Staff pages
-                                        @break
-                                    @case('schedule')
-                                        Schedules, Booking
-                                        @break
-                                    @case('modern')
-                                        Tech, Innovation pages
-                                        @break
-                                    @case('classic')
-                                        Heritage, Formal pages
+                                    @case('fitness')
+                                        Gym, Fitness, CrossFit
                                         @break
                                     @default
                                         General content

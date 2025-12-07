@@ -28,6 +28,9 @@ Route::get('portal', \App\Livewire\CmsPageViewer::class)
 // Note: GET requests to /contact or /contact-us are handled by the catch-all route below
 Route::post('contact', [\App\Http\Controllers\ContactController::class, 'submit'])->name('contact.submit');
 
+// CAPTCHA route
+Route::get('captcha', [\App\Http\Controllers\CaptchaController::class, 'generate'])->name('captcha');
+
 // Main website routes (clean URLs without /cms/)
 Route::get('/', \App\Livewire\CmsPageViewer::class)
     ->name('home');
@@ -54,6 +57,15 @@ Route::middleware(['auth'])->prefix('org-plan')->name('customer.')->group(functi
 
 // Payment Success Route (Public - accessible after payment)
 Route::get('pay/org-plan-success', \App\Livewire\Customer\PaymentSuccess::class)->name('payment.success');
+
+// Payment Callback Route (Public - called by MyFatoorah after payment completion)
+// MyFatoorah sends GET request with paymentId and Id (InvoiceId) as query parameters
+// The callback is executed:
+// 1. After user completes payment in MyFatoorah payment page
+// 2. MyFatoorah processes the payment
+// 3. MyFatoorah sends GET request to CallBackUrl with payment details
+// 4. Handler verifies payment status and updates database records
+Route::match(['get', 'post'], 'payment/callback', [\App\Http\Controllers\PaymentCallbackController::class, 'handleCallback'])->name('payment.callback');
 
 // Catch-all route for CMS pages (GET requests) - now catches /coaches too
 Route::get('{slug}', \App\Livewire\CmsPageViewer::class)

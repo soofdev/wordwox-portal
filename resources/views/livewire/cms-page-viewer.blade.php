@@ -4,7 +4,7 @@
         @include('partials.cms.page-seo', compact('page'))
 
         @php
-            $currentTemplate = $template ?? ($page->template ?? env('CMS_DEFAULT_THEME', 'modern'));
+            $currentTemplate = $template ?? ($page->template ?? env('CMS_DEFAULT_THEME', 'fitness'));
             $isMeditative = $currentTemplate === 'meditative';
             $isFitness = $currentTemplate === 'fitness';
         @endphp

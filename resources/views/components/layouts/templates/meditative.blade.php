@@ -9,9 +9,7 @@
     
     @stack('meta')
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,500,500i,600,600i,700,700i&display=swap" rel="stylesheet">
+    <!-- Using Bootstrap default system font stack (same as SuperHero CrossFit Yii2 customer portal) -->
 
     <!-- CSS Dependencies from CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
@@ -26,6 +24,14 @@
     @livewireStyles
 
     @stack('head')
+    
+    <style>
+        /* Override meditative template fonts to use Bootstrap system font stack (same as SuperHero CrossFit) */
+        body, 
+        body * {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->

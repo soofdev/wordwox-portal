@@ -34,12 +34,29 @@
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    <div class="alert alert-warning" role="alert">
-                        <h4 class="alert-heading">Payment Information Not Found</h4>
-                        <p>We couldn't find the payment details. If you just completed a payment, please wait a moment and refresh the page.</p>
-                        <hr>
-                        <a href="{{ route('home') }}" class="btn btn-primary">Return to Home</a>
-                    </div>
+                    @if($error)
+                        <div class="alert alert-danger" role="alert">
+                            <h4 class="alert-heading">Payment Processing Error</h4>
+                            <p>{{ $error }}</p>
+                            <hr>
+                            <p class="mb-0">If you just completed a payment, please wait a moment and refresh the page. If the issue persists, please contact support.</p>
+                            <div class="mt-3">
+                                <a href="{{ route('home') }}" class="btn btn-primary me-2">Return to Home</a>
+                                <button onclick="window.location.reload()" class="btn btn-secondary">Refresh Page</button>
+                            </div>
+                        </div>
+                    @else
+                        <div class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">Payment Information Not Found</h4>
+                            <p>We couldn't find the payment details. If you just completed a payment, please wait a moment and refresh the page.</p>
+                            <hr>
+                            <p class="mb-0">The payment may still be processing. Please wait a few moments and refresh this page.</p>
+                            <div class="mt-3">
+                                <a href="{{ route('home') }}" class="btn btn-primary me-2">Return to Home</a>
+                                <button onclick="window.location.reload()" class="btn btn-secondary">Refresh Page</button>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

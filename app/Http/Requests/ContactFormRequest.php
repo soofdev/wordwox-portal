@@ -25,9 +25,24 @@ class ContactFormRequest extends FormRequest
             'email' => 'required|email|max:255',
             'subject' => 'required|string|max:255',
             'body' => 'required|string|max:2000',
-            'verifyCode' => 'nullable|string', // Captcha validation can be added here
+            'verification_code' => 'required|string',
             'org_id' => 'nullable|integer',
         ];
+    }
+    
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $captchaCode = session('captcha_code');
+            $userCode = strtolower($this->input('verification_code'));
+            
+            if (empty($captchaCode) || $captchaCode !== $userCode) {
+                $validator->errors()->add('verification_code', 'The verification code is incorrect.');
+            }
+        });
     }
 
     /**

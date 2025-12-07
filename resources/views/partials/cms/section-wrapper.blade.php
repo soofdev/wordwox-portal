@@ -200,8 +200,9 @@
                         $submitText = $contactData['submit_text'] ?? 'Send Message';
                         $successMessage = $contactData['success_message'] ?? 'Thank you for your message! We\'ll get back to you soon.';
                         $showContactInfo = $contactData['show_contact_info'] ?? true;
+                        $mapUrl = $contactData['map_url'] ?? '';
                     @endphp
-                    @include('partials.cms.sections.contact', compact('section', 'page', 'isMeditative', 'isFitness', 'currentTemplate', 'orgContact', 'formFields', 'submitText', 'successMessage', 'showContactInfo'))
+                    @include('partials.cms.sections.contact', compact('section', 'page', 'isMeditative', 'isFitness', 'currentTemplate', 'orgContact', 'formFields', 'submitText', 'successMessage', 'showContactInfo', 'mapUrl'))
                     @break
                     
                 @case('packages')
@@ -222,6 +223,29 @@
                             ->orderBy('name', 'asc')
                             ->get();
                         
+                        // Check active memberships for authenticated users
+                        $userActivePlans = [];
+                        if (Auth::check() && Auth::user()->orgUser_id) {
+                            $orgUser = \App\Models\OrgUser::find(Auth::user()->orgUser_id);
+                            if ($orgUser) {
+                                // Get all active/upcoming/pending memberships in one query
+                                $activeMemberships = \App\Models\OrgUserPlan::where('orgUser_id', $orgUser->id)
+                                    ->whereIn('status', [
+                                        \App\Models\OrgUserPlan::STATUS_ACTIVE,
+                                        \App\Models\OrgUserPlan::STATUS_UPCOMING,
+                                        \App\Models\OrgUserPlan::STATUS_PENDING,
+                                    ])
+                                    ->where('isCanceled', false)
+                                    ->where('isDeleted', false)
+                                    ->get();
+                                
+                                // Map plan IDs to their status
+                                foreach ($activeMemberships as $membership) {
+                                    $userActivePlans[$membership->orgPlan_id] = $membership->status;
+                                }
+                            }
+                        }
+                        
                         $layout = $packagesData['layout'] ?? 'grid';
                         $columns = $packagesData['columns'] ?? 3;
                         $showDescription = $packagesData['show_description'] ?? true;
@@ -229,7 +253,7 @@
                         $buyButtonText = $packagesData['buy_button_text'] ?? 'Buy';
                         $purchaseAtGymText = $packagesData['purchase_at_gym_text'] ?? 'Purchase at the Gym';
                     @endphp
-                    @include('partials.cms.sections.packages', compact('section', 'page', 'isMeditative', 'isFitness', 'plans', 'layout', 'columns', 'showDescription', 'showPrograms', 'buyButtonText', 'purchaseAtGymText'))
+                    @include('partials.cms.sections.packages', compact('section', 'page', 'isMeditative', 'isFitness', 'plans', 'layout', 'columns', 'showDescription', 'showPrograms', 'buyButtonText', 'purchaseAtGymText', 'userActivePlans'))
                     @break
                     
                 @case('coaches')

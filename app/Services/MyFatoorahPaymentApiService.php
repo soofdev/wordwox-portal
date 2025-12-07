@@ -120,12 +120,28 @@ class MyFatoorahPaymentApiService
     {
         $endpoint = $this->baseUrl . '/api/myfatoorah/create-payment';
 
-        Log::info('MyFatoorah API: Creating payment', [
+        // Log all payment data being sent (excluding sensitive data)
+        Log::info('MyFatoorah API: Creating payment - Request Data', [
             'endpoint' => $endpoint,
             'org_id' => $paymentData['org_id'] ?? null,
+            'payment_method_id' => $paymentData['payment_method_id'] ?? null,
             'invoice_value' => $paymentData['invoice_value'] ?? null,
+            'customer_name' => $paymentData['customer_name'] ?? null,
+            'customer_email' => $paymentData['customer_email'] ?? null,
+            'currency_iso' => $paymentData['currency_iso'] ?? null,
+            'language' => $paymentData['language'] ?? null,
+            'callback_url' => $paymentData['callback_url'] ?? null,
+            'error_url' => $paymentData['error_url'] ?? null,
+            'return_url' => $paymentData['return_url'] ?? null,
+            'org_plan_id' => $paymentData['org_plan_id'] ?? null,
+            'org_user_id' => $paymentData['org_user_id'] ?? null,
+            'plan_name' => $paymentData['plan_name'] ?? null,
+            'has_membership_data' => isset($paymentData['membership_data']),
             'has_api_token' => !empty($this->apiToken),
             'token_preview' => $this->apiToken ? substr($this->apiToken, 0, 10) . '...' : 'empty',
+            'full_payment_data_keys' => array_keys($paymentData),
+            'callback_url_provided' => !empty($paymentData['callback_url']),
+            'error_url_provided' => !empty($paymentData['error_url']),
         ]);
 
         try {
@@ -145,6 +161,13 @@ class MyFatoorahPaymentApiService
                 Log::warning('MyFatoorah API: X-API-Token header NOT added - token is empty');
             }
             
+            // Log the exact payload being sent to wodworx-pay service
+            Log::info('MyFatoorah API: Sending payment request to wodworx-pay', [
+                'endpoint' => $endpoint,
+                'payload' => $paymentData,
+                'headers' => $headers,
+            ]);
+
             $response = Http::timeout($this->timeout)
                 ->withHeaders($headers)
                 ->post($endpoint, $paymentData);
@@ -153,11 +176,14 @@ class MyFatoorahPaymentApiService
             $responseData = $response->json();
             $responseBody = $response->body();
 
-            Log::info('MyFatoorah API: Payment creation response', [
+            Log::info('MyFatoorah API: Payment creation response from wodworx-pay', [
                 'status_code' => $statusCode,
                 'response' => $responseData,
                 'response_body' => $responseBody,
                 'endpoint' => $endpoint,
+                'payment_url' => $responseData['data']['payment_url'] ?? $responseData['payment_url'] ?? null,
+                'payment_id' => $responseData['data']['payment_id'] ?? $responseData['data']['PaymentId'] ?? null,
+                'invoice_id' => $responseData['data']['invoice_id'] ?? $responseData['data']['Id'] ?? null,
             ]);
 
             if ($response->successful()) {
@@ -198,22 +224,29 @@ class MyFatoorahPaymentApiService
      * 
      * @param string $paymentId Payment ID or Invoice ID
      * @param string $paymentType Payment type (PaymentId or InvoiceId)
+     * @param int|null $orgId Organization ID (required by API)
      * @return array Payment status information
      * @throws \Exception If the API request fails
      */
-    public function verifyPayment(string $paymentId, string $paymentType = 'PaymentId'): array
+    public function verifyPayment(string $paymentId, string $paymentType = 'PaymentId', ?int $orgId = null): array
     {
         $endpoint = $this->baseUrl . '/api/myfatoorah/verify-payment';
 
+        // The API expects 'verification_type' not 'payment_type' and requires 'org_id'
         $payload = [
             'payment_id' => $paymentId,
-            'payment_type' => $paymentType,
+            'verification_type' => $paymentType,
         ];
+        
+        // Add org_id if provided (required by API)
+        if ($orgId) {
+            $payload['org_id'] = $orgId;
+        }
 
         Log::info('MyFatoorah API: Verifying payment', [
             'endpoint' => $endpoint,
             'payment_id' => $paymentId,
-            'payment_type' => $paymentType,
+            'verification_type' => $paymentType,
             'has_api_token' => !empty($this->apiToken),
             'token_preview' => $this->apiToken ? substr($this->apiToken, 0, 10) . '...' : 'empty',
         ]);
@@ -241,16 +274,40 @@ class MyFatoorahPaymentApiService
 
             $statusCode = $response->status();
             $responseData = $response->json();
+            $responseBody = $response->body();
+
+            Log::info('MyFatoorah API: Verify payment response', [
+                'status_code' => $statusCode,
+                'response_data' => $responseData,
+                'response_body' => $responseBody,
+                'payload_sent' => $payload,
+            ]);
 
             if ($response->successful()) {
                 return [
                     'success' => true,
-                    'data' => $responseData,
+                    'data' => $responseData['data'] ?? $responseData,
                     'status_code' => $statusCode,
                 ];
             }
 
-            $errorMessage = $responseData['message'] ?? $responseData['error'] ?? 'Unknown error';
+            // Extract detailed error message
+            $errorMessage = $responseData['message'] ?? 
+                          $responseData['error'] ?? 
+                          ($responseData['errors'] ?? null) ? json_encode($responseData['errors']) : null;
+            
+            if (!$errorMessage) {
+                $errorMessage = $responseBody ?? 'Unknown error';
+            }
+            
+            Log::error('MyFatoorah API: Verify payment failed', [
+                'status_code' => $statusCode,
+                'error_message' => $errorMessage,
+                'response_data' => $responseData,
+                'response_body' => $responseBody,
+                'payload_sent' => $payload,
+            ]);
+            
             throw new \Exception("Failed to verify payment: {$errorMessage}", $statusCode);
 
         } catch (\Exception $e) {

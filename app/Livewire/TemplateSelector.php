@@ -41,9 +41,7 @@ class TemplateSelector extends Component
     public function getTemplateName($template)
     {
         $templates = [
-            'modern' => '🚀 Modern Template',
-            'classic' => '🏛️ Classic Template',
-            'meditative' => '🧘‍♀️ Meditative Template',
+            'fitness' => '💪 Fitness Template',
         ];
 
         return $templates[$template] ?? 'Unknown Template';
@@ -52,20 +50,15 @@ class TemplateSelector extends Component
     public function getTemplateIcon($template)
     {
         $icons = [
-            'modern' => '🚀',
-            'classic' => '🏛️',
-            'meditative' => '🧘‍♀️',
+            'fitness' => '💪',
         ];
 
-        return $icons[$template] ?? '🚀';
+        return $icons[$template] ?? '💪';
     }
 
     public function render()
     {
         $templates = [
-            'modern' => ['name' => 'Modern', 'description' => 'Futuristic Glass'],
-            'classic' => ['name' => 'Classic', 'description' => 'Elegant Traditional'],
-            'meditative' => ['name' => 'Meditative', 'description' => 'Zen Wellness'],
             'fitness' => ['name' => 'Fitness', 'description' => 'Fitness & Yoga'],
         ];
 

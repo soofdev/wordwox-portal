@@ -6,9 +6,12 @@ use App\Models\CmsPage;
 use App\Models\OrgPlan;
 use App\Models\OrgUser;
 use App\Models\OrgSettingsPaymentGateway;
+use App\Models\OrgUserPlan;
 use App\Services\MyFatoorahPaymentApiService;
+use App\Enums\InvoiceStatus;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 /**
@@ -213,6 +216,8 @@ class PurchasePlan extends Component
     
     /**
      * Create payment via API and get payment URL
+     * 
+     * Strategy: Store payment details in session, create records AFTER callback success via queue job.
      */
     protected function createPayment()
     {
@@ -227,6 +232,10 @@ class PurchasePlan extends Component
                 return;
             }
             
+            // Note: We don't check for ANY active plan here because users should be able to purchase
+            // different plans even if they have an active membership for another plan.
+            // The checkExistingMembership() method already checks for the SPECIFIC plan being purchased.
+            
             $orgId = $orgUser->org_id;
             $orgSettings = OrgSettingsPaymentGateway::getMyFatoorahForOrg($orgId);
             
@@ -236,18 +245,18 @@ class PurchasePlan extends Component
                 return;
             }
             
-            // Prepare membership data structure (same as FOH) for callback
+            // Prepare membership data for creation after payment success
             $membershipData = [
                 'org_id' => $orgId,
                 'orgUser_id' => $orgUser->id,
                 'orgPlan_id' => $this->plan->id,
-                'invoiceStatus' => \App\Models\OrgUserPlan::INVOICE_STATUS_PAID,
+                'invoiceStatus' => OrgUserPlan::INVOICE_STATUS_PAID, // Will be PAID after success
                 'invoiceMethod' => 'online',
-                'status' => \App\Models\OrgUserPlan::STATUS_ACTIVE,
+                'status' => OrgUserPlan::STATUS_ACTIVE, // Will be ACTIVE after success
                 'created_by' => $orgUser->id,
                 'sold_by' => $orgUser->id,
                 'note' => 'Purchased online via customer portal',
-                'startDateLoc' => now()->format('Y-m-d'), // Start from today
+                'startDateLoc' => now()->format('Y-m-d'),
             ];
             
             // Prepare payment data for API
@@ -285,13 +294,41 @@ class PurchasePlan extends Component
             $paymentData['org_user_id'] = $orgUser->id;
             $paymentData['plan_name'] = $this->plan->name;
             
-            Log::info('PurchasePlan: Creating payment via API', [
+            // Add callback URL for payment success - MUST be Laravel portal URL
+            $callbackUrl = route('payment.callback', [
+                'org_id' => $orgId,
+                'plan' => $this->plan->uuid,
+            ], true);
+            
+            // Add error URL (same as callback URL - will handle errors too)
+            $errorUrl = $callbackUrl;
+            
+            // Ensure URLs are absolute and use HTTPS in production
+            if (str_starts_with($callbackUrl, 'http://') && !app()->environment('local')) {
+                $callbackUrl = str_replace('http://', 'https://', $callbackUrl);
+                $errorUrl = str_replace('http://', 'https://', $errorUrl);
+            }
+            
+            // Set callback and error URLs in payment data
+            // These will be used by wodworx-pay service: 
+            // 'CallBackUrl' => $paymentData['callback_url'] ?? $this->config['callback_url']
+            // 'ErrorUrl' => $paymentData['error_url'] ?? $this->config['error_url']
+            $paymentData['callback_url'] = $callbackUrl;
+            $paymentData['error_url'] = $errorUrl;
+            $paymentData['return_url'] = $callbackUrl; // Also set return_url for compatibility
+            
+            Log::info('PurchasePlan: Creating payment via API with callback and error URLs', [
                 'org_id' => $orgId,
                 'plan_id' => $this->plan->id,
                 'invoice_value' => $paymentData['invoice_value'],
+                'callback_url' => $callbackUrl,
+                'error_url' => $errorUrl,
+                'return_url' => $callbackUrl,
+                'callback_url_set' => !empty($paymentData['callback_url']),
+                'error_url_set' => !empty($paymentData['error_url']),
             ]);
             
-            // Call API to create payment
+            // Step 2: Call API to create payment
             $paymentService = app(MyFatoorahPaymentApiService::class);
             $result = $paymentService->createPayment($paymentData);
             
@@ -299,9 +336,50 @@ class PurchasePlan extends Component
                 $this->paymentUrl = $result['data']['payment_url'];
                 $this->loading = false; // Stop loading when payment URL is ready
                 
+                // Get payment gateway IDs from response
+                $paymentId = $result['data']['payment_id'] ?? $result['data']['PaymentId'] ?? null;
+                $invoiceId = $result['data']['invoice_id'] ?? $result['data']['Id'] ?? null;
+                
+                // Step 3: Store all payment details in session for callback
+                $sessionIdentifier = $invoiceId ?? $paymentId ?? uniqid('payment_', true);
+                $sessionKey = 'payment_pending_' . $sessionIdentifier;
+                
+                $sessionData = [
+                    'org_id' => $orgId,
+                    'org_user_id' => $orgUser->id,
+                    'org_plan_id' => $this->plan->id,
+                    'plan_uuid' => $this->plan->uuid,
+                    'plan_name' => $this->plan->name,
+                    'plan_price' => $this->plan->price,
+                    'payment_id' => $paymentId,
+                    'invoice_id' => $invoiceId,
+                    'payment_url' => $this->paymentUrl,
+                    'membership_data' => $membershipData,
+                    'payment_data' => $paymentData,
+                    'created_at' => now()->toIso8601String(),
+                    'expires_at' => now()->addHours(24)->toIso8601String(), // 24 hour expiration
+                ];
+                
+                // Store in session (for same-browser scenarios)
+                \Illuminate\Support\Facades\Session::put($sessionKey, $sessionData);
+                
+                // Also store in cache (accessible from callback even without session)
+                // Cache for 24 hours to match session expiration
+                \Illuminate\Support\Facades\Cache::put($sessionKey, $sessionData, now()->addHours(24));
+                
+                Log::info('PurchasePlan: Stored payment data in session and cache', [
+                    'session_key' => $sessionKey,
+                    'session_identifier' => $sessionIdentifier,
+                    'payment_id' => $paymentId,
+                    'invoice_id' => $invoiceId,
+                    'cache_key' => $sessionKey,
+                ]);
+                
                 Log::info('PurchasePlan: Payment URL received', [
                     'payment_url' => $this->paymentUrl,
-                    'invoice_id' => $result['data']['invoice_id'] ?? null,
+                    'payment_id' => $paymentId,
+                    'invoice_id' => $invoiceId,
+                    'session_key' => $sessionKey,
                 ]);
                 
                 // Don't redirect - display page with package details and iframe
@@ -325,7 +403,47 @@ class PurchasePlan extends Component
     }
     
     /**
+     * Check if user has any active, upcoming, or pending membership
+     * 
+     * @param OrgUser $orgUser The organization user to check
+     * @return array|null Returns array with 'exists' => true and membership details if found, null otherwise
+     */
+    protected function checkActivePlan($orgUser)
+    {
+        // Check for any active, upcoming, or pending membership (any plan)
+        $existingMembership = \App\Models\OrgUserPlan::where('orgUser_id', $orgUser->id)
+            ->whereIn('status', [
+                \App\Models\OrgUserPlan::STATUS_ACTIVE,
+                \App\Models\OrgUserPlan::STATUS_UPCOMING,
+                \App\Models\OrgUserPlan::STATUS_PENDING,
+            ])
+            ->where('isCanceled', false)
+            ->where('isDeleted', false)
+            ->first();
+        
+        if ($existingMembership) {
+            Log::info('PurchasePlan: Active membership found', [
+                'orgUser_id' => $orgUser->id,
+                'existing_membership_id' => $existingMembership->id,
+                'existing_plan_id' => $existingMembership->orgPlan_id,
+                'status' => $existingMembership->status,
+            ]);
+            
+            return [
+                'exists' => true,
+                'membership' => $existingMembership,
+                'status' => $existingMembership->status,
+            ];
+        }
+        
+        return null;
+    }
+    
+    /**
      * Confirm and create free membership
+     * 
+     * For free plans (price = 0), creates orgUserPlan, orgInvoice, and orgInvoicePayment
+     * immediately when user clicks "Complete order" button.
      */
     public function confirmFreeMembership()
     {
@@ -341,42 +459,118 @@ class PurchasePlan extends Component
                 return;
             }
             
+            // Check if user already has an active plan
+            $activePlanCheck = $this->checkActivePlan($orgUser);
+            if ($activePlanCheck && $activePlanCheck['exists']) {
+                $status = $activePlanCheck['status'];
+                if ($status == \App\Models\OrgUserPlan::STATUS_ACTIVE) {
+                    $this->error = 'You already have an active membership. Please wait for it to expire or contact support.';
+                } elseif ($status == \App\Models\OrgUserPlan::STATUS_UPCOMING) {
+                    $this->error = 'You already have an upcoming membership. Please wait for it to start or contact support.';
+                } else {
+                    $this->error = 'You already have a pending membership. Please complete the payment or wait for it to be processed.';
+                }
+                $this->loading = false;
+                return;
+            }
+            
             $orgId = $orgUser->org_id;
             
-            Log::info('PurchasePlan: Creating free membership', [
+            Log::info('PurchasePlan: Creating free membership with invoice and payment', [
                 'org_id' => $orgId,
                 'plan_id' => $this->plan->id,
                 'orgUser_id' => $orgUser->id,
+                'plan_price' => $this->plan->price,
             ]);
             
-            // Use OrgUserPlanService to create the membership
-            $planService = app(\App\Services\OrgUserPlanService::class);
+            DB::beginTransaction();
             
-            $membershipData = [
-                'org_id' => $orgId,
-                'orgUser_id' => $orgUser->id,
-                'orgPlan_id' => $this->plan->id,
-                'invoiceStatus' => \App\Models\OrgUserPlan::INVOICE_STATUS_FREE,
-                'invoiceMethod' => 'free',
-                'status' => \App\Models\OrgUserPlan::STATUS_ACTIVE,
-                'created_by' => $orgUser->id,
-                'sold_by' => $orgUser->id,
-                'note' => 'Purchased online via customer portal (Free plan)',
-            ];
-            
-            $orgUserPlan = $planService->create($membershipData);
-            
-            if ($orgUserPlan) {
-                Log::info('PurchasePlan: Free membership created successfully', [
+            try {
+                // Step 1: Create orgUserPlan (membership)
+                $planService = app(\App\Services\OrgUserPlanService::class);
+                
+                $membershipData = [
+                    'org_id' => $orgId,
+                    'orgUser_id' => $orgUser->id,
+                    'orgPlan_id' => $this->plan->id,
+                    'invoiceStatus' => \App\Models\OrgUserPlan::INVOICE_STATUS_FREE,
+                    'invoiceMethod' => 'free',
+                    'status' => \App\Models\OrgUserPlan::STATUS_ACTIVE,
+                    'created_by' => $orgUser->id,
+                    'sold_by' => $orgUser->id,
+                    'note' => 'Purchased online via customer portal (Free plan)',
+                    'startDateLoc' => now()->format('Y-m-d'),
+                ];
+                
+                $orgUserPlan = $planService->create($membershipData);
+                
+                Log::info('PurchasePlan: Created free orgUserPlan', [
                     'membership_id' => $orgUserPlan->id,
                     'uuid' => $orgUserPlan->uuid,
                 ]);
                 
-                // Redirect to success page with reference (format: plan_{plan_uuid}_{orgUser_uuid})
-                $ref = 'plan_' . $this->plan->uuid . '_' . $orgUser->uuid;
+                // Step 2: Create orgInvoice
+                $invoiceUuid = \Illuminate\Support\Str::uuid()->toString();
+                $invoiceId = DB::table('orgInvoice')->insertGetId([
+                    'uuid' => $invoiceUuid,
+                    'org_id' => $orgId,
+                    'orgUserPlan_id' => $orgUserPlan->id,
+                    'orgUser_id' => $orgUser->id,
+                    'total' => 0, // Free plan - zero amount
+                    'totalPaid' => 0, // Free plan - zero amount
+                    'currency' => $this->plan->currency ?? 'KWD',
+                    'status' => \App\Enums\InvoiceStatus::FREE->value, // FREE status for free plans
+                    'pp' => null, // No payment gateway for free plans
+                    'isDeleted' => 0,
+                    'created_at' => time(),
+                    'updated_at' => time(),
+                ]);
+                
+                Log::info('PurchasePlan: Created free orgInvoice', [
+                    'invoice_id' => $invoiceId,
+                    'uuid' => $invoiceUuid,
+                ]);
+                
+                // Step 3: Create orgInvoicePayment
+                $paymentUuid = \Illuminate\Support\Str::uuid()->toString();
+                $dbPaymentId = DB::table('orgInvoicePayment')->insertGetId([
+                    'uuid' => $paymentUuid,
+                    'org_id' => $orgId,
+                    'orgInvoice_id' => $invoiceId,
+                    'amount' => 0, // Free plan - zero amount
+                    'currency' => $this->plan->currency ?? 'KWD',
+                    'method' => \App\Models\OrgInvoicePayment::METHOD_FREE,
+                    'status' => \App\Models\OrgInvoicePayment::STATUS_PAID, // PAID status (free = paid)
+                    'gateway' => null, // No payment gateway
+                    'pp' => null, // No payment provider
+                    'paid_at' => time(),
+                    'created_by' => $orgUser->id,
+                    'isCanceled' => 0,
+                    'isDeleted' => 0,
+                    'created_at' => time(),
+                    'updated_at' => time(),
+                ]);
+                
+                Log::info('PurchasePlan: Created free orgInvoicePayment', [
+                    'payment_id' => $dbPaymentId,
+                    'uuid' => $paymentUuid,
+                ]);
+                
+                DB::commit();
+                
+                Log::info('PurchasePlan: Free membership, invoice, and payment created successfully', [
+                    'membership_id' => $orgUserPlan->id,
+                    'invoice_id' => $invoiceId,
+                    'payment_id' => $dbPaymentId,
+                ]);
+                
+                // Redirect to success page with reference (format: plan_{plan_uuid}_{orgUser_id})
+                $ref = 'plan_' . $this->plan->uuid . '_' . $orgUser->id;
                 return redirect()->route('payment.success', ['ref' => $ref]);
-            } else {
-                $this->error = 'Failed to create membership. Please try again.';
+                
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
             }
             
         } catch (\Exception $e) {

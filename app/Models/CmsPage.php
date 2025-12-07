@@ -17,6 +17,7 @@ class CmsPage extends BaseWWModel
     protected $fillable = [
         'uuid',
         'org_id',
+        'orgPortal_id',
         'title',
         'slug',
         'description',

@@ -1051,6 +1051,29 @@
                                     </flux:field>
 
                                     <flux:field>
+                                        <flux:label>Google Maps Embed URL</flux:label>
+                                        <flux:input 
+                                            value="{{ $contactData['map_url'] ?? '' }}"
+                                            wire:change="updateContactField({{ $index }}, 'map_url', $event.target.value)"
+                                            placeholder="https://www.google.com/maps/embed?pb=..." 
+                                            type="url"
+                                        />
+                                        <flux:description>
+                                            <div class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+                                                <p class="mb-1"><strong>How to get the embed URL:</strong></p>
+                                                <ol class="list-decimal list-inside space-y-1 ml-2">
+                                                    <li>Go to <a href="https://www.google.com/maps" target="_blank" class="text-blue-600 hover:underline">Google Maps</a></li>
+                                                    <li>Search for your location</li>
+                                                    <li>Click "Share" button</li>
+                                                    <li>Select "Embed a map" tab</li>
+                                                    <li>Copy the URL from the iframe src attribute (starts with https://www.google.com/maps/embed?pb=...)</li>
+                                                    <li>Paste it here</li>
+                                                </ol>
+                                            </div>
+                                        </flux:description>
+                                    </flux:field>
+
+                                    <flux:field>
                                         <flux:label>Fax Numbers</flux:label>
                                         @php
                                             $faxNumbers = $contactData['fax'] ?? [];
@@ -1892,14 +1915,10 @@
                         <flux:label>Template</flux:label>
                         <div class="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-700">
                             <span class="text-lg">
-                                @if($template === 'modern') 🚀
-                                @elseif($template === 'classic') 🏛️
-                                @elseif($template === 'meditative') 🧘‍♀️
-                                @else 🚀
-                                @endif
+                                💪
                             </span>
                             <span class="text-sm font-medium text-gray-900 dark:text-white">
-                                {{ ucfirst($template ?? 'modern') }}
+                                {{ ucfirst($template ?? 'fitness') }}
                             </span>
                         </div>
                         <flux:description>

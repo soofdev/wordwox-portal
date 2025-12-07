@@ -30,14 +30,11 @@
                 // Get layout setting from section data (default to grid)
                 $layoutMode = $layout ?? 'grid';
                 
-                // Calculate Bootstrap 5 column class based on columns setting (only for grid layout)
-                // Mobile: 1 column, Tablet: 2 columns, Desktop: based on setting
+                // Use SuperHero CrossFit grid layout: col-lg-4 col-md-6 mb-4 (3 columns on large, 2 on medium)
+                // This matches the exact layout from https://superhero.wodworx.com/org-plan/index
                 if ($layoutMode === 'grid') {
-                    $fitnessBootstrapCols = match((int)($columns ?? 3)) {
-                        2 => 'col-12 col-sm-6 col-md-6 col-lg-6',
-                        4 => 'col-12 col-sm-6 col-md-4 col-lg-3',
-                        default => 'col-12 col-sm-6 col-md-6 col-lg-4' // 3 columns default
-                    };
+                    // Always use SuperHero CrossFit layout regardless of columns setting
+                    $fitnessBootstrapCols = 'col-lg-4 col-md-6 mb-4';
                 }
                 
                 // Use theme colors with fallbacks
@@ -84,11 +81,30 @@
                                             @php
                                                 $canSellOnline = true;
                                                 $planUuid = $plan->uuid ?? $plan->id;
+                                                // Check if user has active membership for this plan
+                                                $hasActivePlan = isset($userActivePlans[$plan->id]);
+                                                $planStatus = $userActivePlans[$plan->id] ?? null;
                                             @endphp
                                             @if($canSellOnline)
-                                                <a href="/org-plan/index?plan={{ $planUuid }}" class="btn btn-outline-primary package-btn">
-                                                    {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
-                                                </a>
+                                                @if($hasActivePlan)
+                                                    @if($planStatus == \App\Models\OrgUserPlan::STATUS_ACTIVE)
+                                                        <button class="btn btn-success package-btn" disabled>
+                                                            <i class="fas fa-check-circle me-1"></i>Active
+                                                        </button>
+                                                    @elseif($planStatus == \App\Models\OrgUserPlan::STATUS_UPCOMING)
+                                                        <button class="btn btn-info package-btn" disabled>
+                                                            <i class="fas fa-clock me-1"></i>Upcoming
+                                                        </button>
+                                                    @else
+                                                        <button class="btn btn-warning package-btn" disabled>
+                                                            <i class="fas fa-hourglass-half me-1"></i>Pending
+                                                        </button>
+                                                    @endif
+                                                @else
+                                                    <a href="/org-plan/index?plan={{ $planUuid }}" class="btn btn-outline-primary package-btn">
+                                                        {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
+                                                    </a>
+                                                @endif
                                             @else
                                                 <button class="btn btn-outline-secondary package-btn" disabled>
                                                     {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
@@ -102,45 +118,79 @@
                     @endforeach
                 </div>
             @else
-                {{-- Grid Layout --}}
-                <div class="row g-3 g-md-4">
+                {{-- Grid Layout - Matching SuperHero CrossFit Design --}}
+                <div class="row">
                     @foreach($plans as $index => $plan)
                         @php
-                            $color = $colors[$index % count($colors)];
-                            $icon = $icons[$index % count($icons)];
-                            $isPopular = $index === 1; // Make second plan popular
+                            $canSellOnline = true;
+                            $planUuid = $plan->uuid ?? $plan->id;
+                            $currency = $plan->currency ?? 'USD';
+                            $price = number_format($plan->price, 2);
+                            // Format duration like SuperHero: "1 Months" instead of "/1 Month"
+                            $durationText = $plan->duration_text ?? ($plan->cycleDuration . ' ' . ($plan->cycleDuration > 1 ? $plan->cycleUnit . 's' : $plan->cycleUnit));
+                            // Check if user has active membership for this plan
+                            $hasActivePlan = isset($userActivePlans[$plan->id]);
+                            $planStatus = $userActivePlans[$plan->id] ?? null;
                         @endphp
-                        <div class="{{ $fitnessBootstrapCols }}">
-                            <div class="card h-100 border-0 package-card-grid" style="border-top: 4px solid {{ $color }};">
-                                <div class="card-body text-center p-4 p-md-5 d-flex flex-column">
-                                    <h4 class="card-title mb-2 mb-md-3 package-name" style="{{ $cardTitleStyle }}">{{ $plan->name }}</h4>
-                                    <div class="price mb-3 mb-md-4">
-                                        <span class="package-price-display">${{ number_format($plan->price, 2) }}</span>
-                                        <span class="text-muted package-duration">/{{ $plan->duration_text }}</span>
-                                    </div>
-                                    @if($showDescription && $plan->description)
-                                        <p class="card-text mb-3 mb-md-4 package-description">{{ Str::limit($plan->description, 120) }}</p>
-                                    @endif
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card plan-card">
+                                <div class="card-body">
+                                    <h4 class="card-title">{{ $plan->name }}</h4>
+                                    <p class="card-text text-overflow">{{ $durationText }}</p>
+                                    
                                     @if($showPrograms)
-                                        <div class="mb-2 mb-md-3">
-                                            <span class="badge bg-primary package-badge">{{ $plan->type_label ?? 'Standard Plan' }}</span>
-                                        </div>
+                                        <p class="card-text">
+                                            <label>Classes included:</label>
+                                            @php
+                                                // Get programs/classes for this plan
+                                                // For now, show plan type as badge, but structure is ready for program badges
+                                                $programs = []; // TODO: Load actual programs when relationship is available
+                                            @endphp
+                                            @if(count($programs) > 0)
+                                                @foreach($programs->take(9) as $program)
+                                                    <span class="badge" style="color: {{ $program->textColor ?? '#000000' }}; background-color: {{ $program->color ?? '#f0f0f0' }};">
+                                                        {{ $program->name }}
+                                                    </span>
+                                                @endforeach
+                                                @if($programs->count() > 9)
+                                                    <a class="modal-link" href="#" data-bs-toggle="modal" data-bs-target="#programsModal{{ $plan->id }}">...more</a>
+                                                @endif
+                                            @else
+                                                {{-- Fallback: Show plan type badge --}}
+                                                <span class="badge bg-secondary">{{ $plan->type_label ?? 'Standard Plan' }}</span>
+                                            @endif
+                                        </p>
                                     @endif
-                                    <div class="mt-auto">
-                                        @php
-                                            $canSellOnline = true;
-                                            $planUuid = $plan->uuid ?? $plan->id;
-                                        @endphp
-                                        @if($canSellOnline)
-                                            <a href="/org-plan/index?plan={{ $planUuid }}" class="btn btn-lg w-100 package-btn">
-                                                {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
-                                            </a>
+                                </div>
+                                <div class="card-footer">
+                                    <h4 class="text-center mb-4">
+                                        <span class="currency">{{ $currency }}</span> {{ $price }}
+                                    </h4>
+                                    @if($canSellOnline)
+                                        @if($hasActivePlan)
+                                            @if($planStatus == \App\Models\OrgUserPlan::STATUS_ACTIVE)
+                                                <button class="btn btn-md btn-block btn-success" disabled>
+                                                    <i class="fas fa-check-circle me-1"></i>Active
+                                                </button>
+                                            @elseif($planStatus == \App\Models\OrgUserPlan::STATUS_UPCOMING)
+                                                <button class="btn btn-md btn-block btn-info" disabled>
+                                                    <i class="fas fa-clock me-1"></i>Upcoming
+                                                </button>
+                                            @else
+                                                <button class="btn btn-md btn-block btn-warning" disabled>
+                                                    <i class="fas fa-hourglass-half me-1"></i>Pending
+                                                </button>
+                                            @endif
                                         @else
-                                            <button class="btn btn-outline-secondary btn-lg w-100 package-btn" disabled>
-                                                {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
-                                            </button>
+                                            <a class="btn btn-md btn-block btn-dark" href="/org-plan/index?plan={{ $planUuid }}">
+                                                {{ $buyButtonText ?? 'Buy' }}
+                                            </a>
                                         @endif
-                                    </div>
+                                    @else
+                                        <button class="btn btn-md btn-block btn-dark" disabled>
+                                            {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -178,17 +228,81 @@
             line-height: 1.7;
         }
         
-        /* Package Cards */
+        /* Package Cards - Matching SuperHero CrossFit Design */
+        .plan-card {
+            height: 350px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0;
+            border: 1px solid rgba(0,0,0,0.125);
+            box-shadow: none !important;
+        }
+        
+        .plan-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+        
+        .plan-card .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #212529;
+        }
+        
+        .plan-card .card-text {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-card .card-text label {
+            font-weight: 500;
+            color: #212529;
+            margin-right: 0.5rem;
+        }
+        
+        .plan-card .card-text .badge {
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+        
+        .plan-card .card-body .text-overflow {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .plan-card .card-footer {
+            margin-top: auto;
+            background-color: #fff;
+            border-top: 1px solid rgba(0,0,0,0.125);
+            padding: 1rem;
+        }
+        
+        .plan-card .card-footer h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 1rem;
+        }
+        
+        .plan-card .card-footer .currency {
+            font-weight: 400;
+            margin-right: 0.25rem;
+        }
+        
         .package-card-grid,
         .package-card-list {
             border-radius: 10px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .package-card-grid:hover,
-        .package-card-list:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+            box-shadow: none !important;
         }
         
         .package-name {
@@ -216,12 +330,27 @@
             padding: 0.35rem 0.65rem;
         }
         
+        /* Buy Button - Matching SuperHero CrossFit Dark Button */
+        .plan-card .btn-dark {
+            background-color: #212529 !important;
+            border-color: #212529 !important;
+            color: #ffffff !important;
+            font-size: 0.9rem;
+            padding: 0.625rem 1.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .plan-card .btn-dark:hover:not(:disabled) {
+            background-color: #343a40 !important;
+            border-color: #343a40 !important;
+        }
+        
         .package-btn {
             font-size: 0.9rem;
             padding: 0.625rem 1.25rem;
-            background: var(--fitness-primary, #ff6b6b) !important;
+            background: var(--fitness-primary, #4285F4) !important;
             border: none !important;
-            color: var(--fitness-text-light, white) !important; /* White text like view-profile-btn */
+            color: var(--fitness-text-light, white) !important;
             box-shadow: none !important;
         }
         
@@ -376,7 +505,28 @@
                                     @else
                                         <p>{{ $plan->type_label }} membership with flexible scheduling and great value.</p>
                                     @endif
-                                    <a href="/org-plan/index?plan={{ $plan->uuid ?? $plan->id }}" class="btn btn-primary d-block px-2 py-3">{{ $buyButtonText ?? 'Get Started' }}</a>
+                                    @php
+                                        // Check if user has active membership for this plan
+                                        $hasActivePlan = isset($userActivePlans[$plan->id]);
+                                        $planStatus = $userActivePlans[$plan->id] ?? null;
+                                    @endphp
+                                    @if($hasActivePlan)
+                                        @if($planStatus == \App\Models\OrgUserPlan::STATUS_ACTIVE)
+                                            <button class="btn btn-success d-block px-2 py-3" disabled>
+                                                <i class="fas fa-check-circle me-1"></i>Active
+                                            </button>
+                                        @elseif($planStatus == \App\Models\OrgUserPlan::STATUS_UPCOMING)
+                                            <button class="btn btn-info d-block px-2 py-3" disabled>
+                                                <i class="fas fa-clock me-1"></i>Upcoming
+                                            </button>
+                                        @else
+                                            <button class="btn btn-warning d-block px-2 py-3" disabled>
+                                                <i class="fas fa-hourglass-half me-1"></i>Pending
+                                            </button>
+                                        @endif
+                                    @else
+                                        <a href="/org-plan/index?plan={{ $plan->uuid ?? $plan->id }}" class="btn btn-primary d-block px-2 py-3">{{ $buyButtonText ?? 'Get Started' }}</a>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -453,11 +603,32 @@
                                     </span>
                                 </div>
                             @endif
+                            @php
+                                // Check if user has active membership for this plan
+                                $hasActivePlan = isset($userActivePlans[$plan->id]);
+                                $planStatus = $userActivePlans[$plan->id] ?? null;
+                            @endphp
                             @if($canSellOnline)
-                                <a href="/org-plan/index?plan={{ $planUuid }}" 
-                                   class="w-full {{ $isPopular ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300' }} py-3 px-6 rounded-lg transition-colors inline-block text-center">
-                                    {{ $buyButtonText ?? 'Choose Plan' }}
-                                </a>
+                                @if($hasActivePlan)
+                                    @if($planStatus == \App\Models\OrgUserPlan::STATUS_ACTIVE)
+                                        <button class="w-full bg-green-500 text-white py-3 px-6 rounded-lg cursor-not-allowed" disabled>
+                                            <i class="fas fa-check-circle me-1"></i>Active
+                                        </button>
+                                    @elseif($planStatus == \App\Models\OrgUserPlan::STATUS_UPCOMING)
+                                        <button class="w-full bg-blue-500 text-white py-3 px-6 rounded-lg cursor-not-allowed" disabled>
+                                            <i class="fas fa-clock me-1"></i>Upcoming
+                                        </button>
+                                    @else
+                                        <button class="w-full bg-yellow-500 text-white py-3 px-6 rounded-lg cursor-not-allowed" disabled>
+                                            <i class="fas fa-hourglass-half me-1"></i>Pending
+                                        </button>
+                                    @endif
+                                @else
+                                    <a href="/org-plan/index?plan={{ $planUuid }}" 
+                                       class="w-full {{ $isPopular ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300' }} py-3 px-6 rounded-lg transition-colors inline-block text-center">
+                                        {{ $buyButtonText ?? 'Choose Plan' }}
+                                    </a>
+                                @endif
                             @else
                                 <button class="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg cursor-not-allowed">
                                     {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
