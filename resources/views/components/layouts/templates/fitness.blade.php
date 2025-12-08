@@ -1193,20 +1193,15 @@
         }
         
         @media (min-width: 768px) {
-        .footer-fitness {
-                padding: 40px 0 0 0;
-            }
-            .footer-fitness h5 {
-                font-size: 1.25rem;
-            }
-            .footer-fitness p,
-            .footer-fitness .text-white-50 {
-                font-size: 1rem;
-            }
-            
             .footer-fitness,
             .footer-fitness * {
                 color: var(--fitness-text-footer, #ffffff) !important;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .footer-fitness {
+                padding: 10px 0 0 0;
             }
         }
         
@@ -1559,93 +1554,17 @@
                     @endforeach
                 </div>
             @else
-                <!-- Fallback: Default Footer Content when no blocks exist -->
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-widget">
-                            <h5 class="fw-bold mb-3 text-white">
-                                <i class="fas fa-dumbbell text-danger me-2"></i>
-                                {{ config('app.name', 'Fitness Gym') }}
-                            </h5>
-                            <p class="text-white-50 mb-3">Transform your body and mind with our comprehensive fitness programs designed for all levels.</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-widget">
-                            <h5 class="fw-bold mb-3 text-white">Quick Links</h5>
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <a href="/" class="text-white-50 text-decoration-none">
-                                    <i class="fas fa-chevron-right me-2"></i>Home
-                                </a>
-                            </li>
-                                <li class="mb-2">
-                                    <a href="/about" class="text-white-50 text-decoration-none">
-                                        <i class="fas fa-chevron-right me-2"></i>About Us
-                                    </a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="/coaches" class="text-white-50 text-decoration-none">
-                                        <i class="fas fa-chevron-right me-2"></i>Our Coaches
-                                    </a>
-                                </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-widget">
-                            <h5 class="fw-bold mb-3 text-white">Classes</h5>
-                            <ul class="list-unstyled">
-                                <li class="mb-2">
-                                    <a href="#" class="text-white-50 text-decoration-none">
-                                        <i class="fas fa-chevron-right me-2"></i>Strength Training
-                                    </a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#" class="text-white-50 text-decoration-none">
-                                        <i class="fas fa-chevron-right me-2"></i>Cardio Fitness
-                                    </a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#" class="text-white-50 text-decoration-none">
-                                        <i class="fas fa-chevron-right me-2"></i>Group Classes
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-widget">
-                            <h5 class="fw-bold mb-3 text-white">Contact Info</h5>
-                        <div class="contact-info">
-                                <p class="mb-2 text-white-50">
-                                <i class="fas fa-map-marker-alt me-2 text-danger"></i>
-                                    123 Fitness Street, Gym City
-                            </p>
-                            <p class="mb-2">
-                                <i class="fas fa-phone me-2 text-danger"></i>
-                                    <a href="tel:+1234567890" class="text-white-50 text-decoration-none">
-                                        +1 (234) 567-890
-                                </a>
-                            </p>
-                            <p class="mb-2">
-                                <i class="fas fa-envelope me-2 text-danger"></i>
-                                    <a href="mailto:info@fitnessgym.com" class="text-white-50 text-decoration-none">
-                                        info@fitnessgym.com
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-                @endif
+                <!-- No footer sections - show only copyright -->
+            @endif
             
             <!-- Copyright Section -->
-            <hr class="border-secondary" style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
+            @if($footerBlocks->count() > 0)
+                <hr class="border-secondary" style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
+            @endif
             <div class="row" style="margin-bottom: 0; padding-bottom: 0;">
                 <div class="col-md-12 text-center">
                     <p class="mb-0 text-white-50" style="margin-bottom: 0 !important; padding-bottom: 0;">
-                        &copy; {{ date('Y') }} {{ config('app.name', 'Fitness Gym') }}. All rights reserved.
+                        © 2025 Wodworx. All rights reserved.
                     </p>
                 </div>
             </div>
