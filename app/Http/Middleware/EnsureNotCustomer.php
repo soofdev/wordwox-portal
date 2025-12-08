@@ -22,12 +22,12 @@ class EnsureNotCustomer
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // If not authenticated, let other middleware handle it
-        if (!Auth::check()) {
+        // Check CMS guard authentication (not customer guard)
+        if (!Auth::guard('cms')->check()) {
             return $next($request);
         }
 
-        $user = Auth::user();
+        $user = Auth::guard('cms')->user();
         
         // Check if user is a customer-only (not staff/admin/FOH)
         if ($this->isCustomerOnly($user)) {
@@ -38,8 +38,8 @@ class EnsureNotCustomer
                 'url' => $request->fullUrl(),
             ]);
             
-            // Logout customer and redirect to customer login
-            Auth::logout();
+            // Logout from CMS guard and redirect to customer login
+            Auth::guard('cms')->logout();
             
             return redirect()->route('login')->withErrors([
                 'email' => 'You do not have permission to access the CMS. Please use the customer portal.'

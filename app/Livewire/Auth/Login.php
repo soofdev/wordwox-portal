@@ -25,6 +25,17 @@ class Login extends Component
     public bool $remember = false;
 
     /**
+     * Mount the component - redirect if already authenticated via CMS guard
+     */
+    public function mount(): void
+    {
+        // If user is already authenticated via CMS guard, redirect to dashboard
+        if (Auth::guard('cms')->check()) {
+            $this->redirect(route('cms.dashboard'), navigate: false);
+        }
+    }
+
+    /**
      * Handle an incoming authentication request.
      */
     public function login(): void
@@ -65,7 +76,8 @@ class Login extends Component
             'auth_provider' => config('auth.guards.' . config('auth.defaults.guard') . '.provider')
         ]);
 
-        $authAttempt = Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember);
+        // Use 'cms' guard for CMS admin login to separate from customer login
+        $authAttempt = Auth::guard('cms')->attempt(['email' => $this->email, 'password' => $this->password], $this->remember);
         
         if (!$authAttempt) {
             Log::error('❌ AUTHENTICATION FAILED', [
@@ -87,7 +99,7 @@ class Login extends Component
         }
 
         // Step 4: Authentication successful
-        $user = Auth::user();
+        $user = Auth::guard('cms')->user();
         Log::info('🎉 AUTHENTICATION SUCCESSFUL', [
             'user_id' => $user->id,
             'user_name' => $user->fullName,

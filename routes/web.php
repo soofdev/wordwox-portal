@@ -50,8 +50,8 @@ Route::middleware('guest')->prefix('customer')->name('customer.')->group(functio
     Route::get('verify-otp', \App\Livewire\Customer\VerifyOtp::class)->name('verify-otp');
 });
 
-// Customer Portal Routes (Protected - require authentication)
-Route::middleware(['auth'])->prefix('org-plan')->name('customer.')->group(function () {
+// Customer Portal Routes (Protected - require customer authentication)
+Route::middleware(['auth:customer'])->prefix('org-plan')->name('customer.')->group(function () {
     Route::get('index', \App\Livewire\Customer\PurchasePlan::class)->name('purchase-plan');
 });
 
@@ -72,8 +72,8 @@ Route::get('{slug}', \App\Livewire\CmsPageViewer::class)
     ->where('slug', '^(?!dashboard|register|cms-admin|portal|cms|org-plan|customer|forgot-password|reset-password|verify-email|confirm-password).*$')
     ->name('page.view');
 
-// CMS Admin Routes (Protected - block customers)
-Route::middleware(['auth', 'verified', \App\Http\Middleware\EnsureNotCustomer::class, \App\Http\Middleware\SetTenantTimezone::class])->prefix('cms-admin')->name('cms.')->group(function () {
+// CMS Admin Routes (Protected - require CMS authentication, block customers)
+Route::middleware(['auth:cms', 'verified', \App\Http\Middleware\EnsureNotCustomer::class, \App\Http\Middleware\SetTenantTimezone::class])->prefix('cms-admin')->name('cms.')->group(function () {
     Route::get('/', \App\Livewire\CmsAdminDashboard::class)->name('dashboard');
 
     // Pages

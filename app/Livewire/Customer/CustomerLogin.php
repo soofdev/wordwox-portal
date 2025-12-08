@@ -547,8 +547,8 @@ class CustomerLogin extends Component
             return;
         }
         
-        // OTP is valid - login the user
-        \Illuminate\Support\Facades\Auth::login($user);
+        // OTP is valid - login the user using 'customer' guard to separate from CMS admin
+        \Illuminate\Support\Facades\Auth::guard('customer')->login($user);
         
         // Clear OTP and session data
         $user->clearOTP();

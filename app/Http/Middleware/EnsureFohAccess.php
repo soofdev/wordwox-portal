@@ -38,11 +38,12 @@ class EnsureFohAccess
             return $next($request);
         }
 
-        // Step 2: Check authentication
-        $isAuthenticated = Auth::check();
+        // Step 2: Check authentication using CMS guard
+        $isAuthenticated = Auth::guard('cms')->check();
         Log::info('🔐 Checking authentication status', [
             'is_authenticated' => $isAuthenticated,
-            'session_id' => session()->getId()
+            'session_id' => session()->getId(),
+            'guard' => 'cms'
         ]);
 
         if (!$isAuthenticated) {
@@ -52,8 +53,8 @@ class EnsureFohAccess
             return redirect()->route('cms.login');
         }
 
-        // Step 3: Get authenticated user details
-        $user = Auth::user();
+        // Step 3: Get authenticated user details from CMS guard
+        $user = Auth::guard('cms')->user();
         Log::info('👤 Authenticated user details', [
             'user_id' => $user->id,
             'user_name' => $user->fullName,
@@ -110,7 +111,7 @@ class EnsureFohAccess
             'action' => 'logout_and_redirect'
         ]);
 
-        Auth::logout();
+        Auth::guard('cms')->logout();
         Log::info('🚪 User logged out due to lack of FOH access');
         
         return redirect()->route('cms.login')->withErrors([
