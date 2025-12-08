@@ -332,38 +332,40 @@
         
         /* Buy Button - Matching SuperHero CrossFit Dark Button */
         .plan-card .btn-dark {
-            background-color: #212529 !important;
-            border-color: #212529 !important;
-            color: #ffffff !important;
+            background-color: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             font-size: 0.9rem;
             padding: 0.625rem 1.25rem;
             transition: all 0.3s ease;
         }
         
         .plan-card .btn-dark:hover:not(:disabled) {
-            background-color: #343a40 !important;
-            border-color: #343a40 !important;
+            background: var(--fitness-primary-light) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
         }
         
         .package-btn {
             font-size: 0.9rem;
             padding: 0.625rem 1.25rem;
-            background: var(--fitness-primary, #4285F4) !important;
-            border: none !important;
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border: 2px solid var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             box-shadow: none !important;
         }
         
         .package-btn:hover:not(:disabled) {
             background: var(--fitness-primary-light) !important;
-            border-color: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-primary, #ff6b6b) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
             box-shadow: none !important;
         }
         
         .package-btn:disabled {
-            background: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             opacity: 0.7;
             cursor: not-allowed;
             box-shadow: none !important;

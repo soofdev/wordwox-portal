@@ -45,6 +45,8 @@
         $bgFooter = $themeColor?->bg_footer ?? $defaults['bg_footer'];
         $bgNavbar = $themeColor?->bg_navbar ?? $defaults['bg_navbar'];
         $textNavbar = $themeColor?->text_navbar ?? $defaults['text_navbar'];
+        $buttonBgColor = $themeColor?->button_bg_color ?? $defaults['button_bg_color'] ?? $primaryColor;
+        $buttonTextColor = $themeColor?->button_text_color ?? $defaults['button_text_color'] ?? '#ffffff';
         
         // Convert hex to rgba for opacity variants
         function hexToRgb($hex) {
@@ -94,6 +96,10 @@
             --fitness-navbar-bg-scroll: {{ $bgNavbar }};
             --fitness-navbar-text: {{ $textNavbar }};
             --fitness-navbar-shadow: rgba(0, 0, 0, 0.1);
+            
+            /* Button Colors */
+            --fitness-button-bg: {{ $buttonBgColor }};
+            --fitness-button-text: {{ $buttonTextColor }};
         }
         
         html, body {
@@ -588,7 +594,7 @@
         
         /* Responsive Quote Block */
         .blockquote-fitness {
-            border-left: 4px solid var(--fitness-primary);
+            border-left: 4px solid var(--fitness-button-bg, #4285F4);
             padding: 1.5rem;
             margin: 2rem 0;
             background: var(--fitness-bg-coaches);
@@ -684,13 +690,13 @@
         
         .btn-outline-fitness {
             background: transparent !important;
-            border: 2px solid var(--fitness-primary);
-            color: var(--fitness-primary) !important;
+            border: 2px solid var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
         }
         
         .btn-outline-fitness:hover {
-            background: var(--fitness-primary) !important;
-            color: var(--fitness-text-light) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
         }
         
         @media (min-width: 768px) {
@@ -752,24 +758,25 @@
             padding: 0.75rem 1.5rem;
             font-size: 0.95rem;
             font-weight: 600;
-            border-radius: 25px;
+            border-radius: 0 !important; /* Rectangular button */
             transition: all 0.3s ease;
-            background: var(--fitness-primary, #ff6b6b) !important;
-            border: none !important;
-            color: var(--fitness-text-light, white) !important; /* White text like view-profile-btn */
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border: 2px solid var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             box-shadow: none !important;
         }
         
         .contact-submit-btn:hover:not(:disabled) {
             background: var(--fitness-primary-light) !important;
-            border-color: var(--fitness-primary) !important;
-            color: var(--fitness-primary, #ff6b6b) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
             box-shadow: none !important;
         }
         
         .contact-submit-btn:disabled {
-            background: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             opacity: 0.7;
             cursor: not-allowed;
             box-shadow: none !important;
@@ -846,6 +853,18 @@
             opacity: 0.9;
             text-decoration: underline;
         }
+        
+        /* All links use button color */
+        /* a:not(.nav-link):not(.btn):not(.btn-link):not(.contact-info-link-fitness):not(.text-white-50) {
+            color: var(--fitness-button-bg, #4285F4) !important;
+            transition: all 0.3s ease;
+        }
+        
+        a:not(.nav-link):not(.btn):not(.btn-link):not(.contact-info-link-fitness):not(.text-white-50):hover {
+            color: var(--fitness-button-bg, #4285F4) !important;
+            opacity: 0.8;
+            text-decoration: underline;
+        } */
         
         .contact-subtitle-fitness {
             font-size: 0.95rem;
@@ -988,37 +1007,68 @@
             }
         }
         
-        /* Override Bootstrap btn-primary to match package buttons (same background color) */
+        /* .btn-dark buttons use button colors from database */
+        .plan-card .btn-dark,
+        .btn-dark.plan-card,
+        button.btn-dark.plan-card {
+            background-color: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
+            font-size: 0.9rem;
+            padding: 0.625rem 1.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .plan-card .btn-dark:hover:not(:disabled),
+        .btn-dark.plan-card:hover:not(:disabled) {
+            background: var(--fitness-primary-light) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
+        }
+        
+        /* Override Bootstrap btn-primary to match package buttons (using button colors from database) */
         .btn-primary,
+        .btn.btn-primary,
         .btn-primary.btn-sm,
         .btn-primary.btn-lg,
         .package-btn,
         button.btn-primary,
+        button.btn.btn-primary,
         button.package-btn,
         a.btn-primary,
+        a.btn.btn-primary,
         a.package-btn {
             font-size: 0.9rem;
             padding: 0.625rem 1.25rem;
-            background-color: var(--fitness-primary, #ff6b6b) !important;
-            background: var(--fitness-primary, #ff6b6b) !important;
-            border: none !important;
-            border-color: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-text-light, white) !important; /* White text like view-profile-btn */
+            background-color: var(--fitness-button-bg, #4285F4) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border: 2px solid var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             box-shadow: none !important;
             opacity: 1 !important; /* Ensure full opacity, not lighter */
             filter: none !important; /* Remove any filters that might lighten the color */
         }
         
+        /* Override .btn.btn-primary hover state */
+        .btn.btn-primary:hover {
+            background: var(--fitness-primary-light) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
+        }
+        
         /* Ensure login/signup buttons match package buttons exactly */
         .btn-primary.package-btn,
         button.btn-primary.package-btn {
-            background-color: var(--fitness-primary, #ff6b6b) !important;
-            background: var(--fitness-primary, #ff6b6b) !important;
+            background-color: var(--fitness-button-bg, #4285F4) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             opacity: 1 !important;
             filter: none !important;
         }
         
         .btn-primary:hover,
+        .btn.btn-primary:hover,
         .btn-primary:focus,
         .btn-primary:active,
         .btn-primary.btn-sm:hover,
@@ -1029,15 +1079,29 @@
         .btn-primary.btn-lg:active,
         .package-btn:hover:not(:disabled) {
             background: var(--fitness-primary-light) !important;
-            border-color: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-primary, #ff6b6b) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
             box-shadow: none !important;
+        }
+        
+        /* Override .btn.btn-outline-primary to use button colors */
+        .btn.btn-outline-primary {
+            border: 2px solid var(--fitness-button-bg, #4285F4) !important;
+            background: transparent !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
+        }
+        
+        .btn.btn-outline-primary:hover {
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
         }
         
         .btn-primary:disabled,
         .package-btn:disabled {
-            background: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             opacity: 0.7;
             cursor: not-allowed;
             box-shadow: none !important;
@@ -1045,9 +1109,9 @@
         
         /* Responsive Buttons */
         .btn-fitness {
-            background: var(--fitness-gradient);
-            border: none;
-            color: var(--fitness-text-light, white) !important; /* White text like view-profile-btn */
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border: 2px solid var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             padding: 10px 24px;
             border-radius: 25px;
             font-weight: 600;
@@ -1066,12 +1130,15 @@
         .btn-fitness:hover:not(:disabled) {
             transform: translateY(-2px);
             background: var(--fitness-primary-light);
-            color: var(--fitness-primary, #ff6b6b) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
             box-shadow: none !important;
         }
         
         .btn-fitness:disabled {
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             opacity: 0.7;
             cursor: not-allowed;
             box-shadow: none !important;

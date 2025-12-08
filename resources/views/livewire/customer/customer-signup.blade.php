@@ -199,90 +199,90 @@
         .package-btn {
             font-size: 0.9rem;
             padding: 0.625rem 1.25rem;
-            background: var(--fitness-primary, #ff6b6b) !important;
-            border: 2px solid var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border: 2px solid var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             box-shadow: none !important;
             transition: all 0.3s ease;
             font-weight: 500;
         }
         
         .package-btn:hover:not(:disabled) {
-            background: var(--fitness-primary-light, #ff8787) !important;
-            border-color: var(--fitness-primary, #ff6b6b) !important;
-            color: white !important;
+            background: var(--fitness-primary-light) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
             transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3) !important;
+            box-shadow: none !important;
         }
         
         .package-btn:active:not(:disabled) {
             transform: translateY(0);
-            box-shadow: 0 1px 4px rgba(255, 107, 107, 0.2) !important;
+            box-shadow: none !important;
         }
         
         .package-btn:disabled {
-            background: var(--fitness-primary, #ff6b6b) !important;
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             opacity: 0.7;
             cursor: not-allowed;
             box-shadow: none !important;
         }
         
-        /* Radio Button Groups - Login Method (Email/Phone) - Gray like Gender buttons */
+        /* Radio Button Groups - Login Method (Email/Phone) - Use button colors */
         .btn-group .btn-outline-primary,
         label.btn-outline-primary[for="signupEmail"],
         label.btn-outline-primary[for="signupPhone"] {
-            border: 2px solid #6c757d !important;
-            color: #6c757d !important;
+            border: 2px solid var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
             background: transparent !important;
             transition: all 0.3s ease;
             font-weight: 500;
             padding: 0.625rem 1.25rem;
-            --bs-btn-color: #6c757d !important;
-            --bs-btn-border-color: #6c757d !important;
         }
         
         .btn-group .btn-outline-primary:hover,
         label.btn-outline-primary[for="signupEmail"]:hover,
         label.btn-outline-primary[for="signupPhone"]:hover {
-            background: rgba(108, 117, 125, 0.1) !important;
-            border-color: #6c757d !important;
-            color: #6c757d !important;
+            background: rgba(66, 133, 244, 0.1) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
             transform: translateY(-1px);
-            --bs-btn-hover-color: #6c757d !important;
-            --bs-btn-hover-bg: rgba(108, 117, 125, 0.1) !important;
-            --bs-btn-hover-border-color: #6c757d !important;
         }
         
         .btn-check:checked + .btn-outline-primary {
-            background: var(--fitness-primary, #ff6b6b) !important;
-            border-color: var(--fitness-primary, #ff6b6b) !important;
-            color: white !important;
-            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
+            box-shadow: none !important;
         }
         
-        /* Radio Button Groups - Gender (Male/Female) */
-        .btn-group .btn-outline-secondary {
-            border: 2px solid #6c757d;
-            color: #6c757d;
-            background: transparent;
+        /* Radio Button Groups - Gender (Male/Female) - Use button colors */
+        .btn-group .btn-outline-secondary,
+        label.btn-outline-secondary[for="genderMale"],
+        label.btn-outline-secondary[for="genderFemale"] {
+            border: 2px solid var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
+            background: transparent !important;
             transition: all 0.3s ease;
             font-weight: 500;
             padding: 0.625rem 1.25rem;
         }
         
-        .btn-group .btn-outline-secondary:hover {
-            background: rgba(108, 117, 125, 0.1);
-            border-color: #6c757d;
-            color: #6c757d;
+        .btn-group .btn-outline-secondary:hover,
+        label.btn-outline-secondary[for="genderMale"]:hover,
+        label.btn-outline-secondary[for="genderFemale"]:hover {
+            background: rgba(66, 133, 244, 0.1) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
             transform: translateY(-1px);
         }
         
         .btn-check:checked + .btn-outline-secondary {
-            background: var(--fitness-primary, #ff6b6b) !important;
-            border-color: var(--fitness-primary, #ff6b6b) !important;
-            color: white !important;
-            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
+            box-shadow: none !important;
         }
         
         /* Ensure country code select has proper border styling */
@@ -292,12 +292,12 @@
         }
         
         #phoneCountry.form-select:hover {
-            border-color: var(--fitness-primary, #ff6b6b);
+            border-color: var(--fitness-button-bg, #4285F4);
         }
         
         #phoneCountry.form-select:focus {
-            border-color: var(--fitness-primary, #ff6b6b);
-            box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
+            border-color: var(--fitness-button-bg, #4285F4);
+            box-shadow: 0 0 0 0.25rem rgba(66, 133, 244, 0.25);
         }
         
         #phoneCountry.form-select.is-invalid {
@@ -306,23 +306,24 @@
         
         /* Form inputs hover effect */
         .form-control:hover:not(:disabled):not(:focus) {
-            border-color: var(--fitness-primary, #ff6b6b);
+            border-color: var(--fitness-button-bg, #4285F4);
         }
         
         .form-control:focus {
-            border-color: var(--fitness-primary, #ff6b6b);
-            box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
+            border-color: var(--fitness-button-bg, #4285F4);
+            box-shadow: 0 0 0 0.25rem rgba(66, 133, 244, 0.25);
         }
         
         /* Login link styling */
         a.text-decoration-none {
-            color: var(--fitness-primary, #ff6b6b);
+            color: var(--fitness-button-bg, #4285F4) !important;
             transition: all 0.3s ease;
             font-weight: 500;
         }
         
         a.text-decoration-none:hover {
-            color: var(--fitness-primary-dark, #ff5252);
+            color: var(--fitness-button-bg, #4285F4) !important;
+            opacity: 0.8;
             text-decoration: underline !important;
         }
     </style>

@@ -174,10 +174,64 @@
     </div>
 
     <style>
+        /* Login Method Selection Buttons - Use button colors */
+        .btn-group .btn-outline-primary,
+        label.btn-outline-primary[for="loginEmail"],
+        label.btn-outline-primary[for="loginPhone"] {
+            border: 2px solid var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
+            background: transparent !important;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            padding: 0.625rem 1.25rem;
+        }
+        
+        .btn-group .btn-outline-primary:hover,
+        label.btn-outline-primary[for="loginEmail"]:hover,
+        label.btn-outline-primary[for="loginPhone"]:hover {
+            background: rgba(66, 133, 244, 0.1) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
+            transform: translateY(-1px);
+        }
+        
         .btn-check:checked + .btn-outline-primary {
-            background: var(--fitness-primary, #ff6b6b);
-            border-color: var(--fitness-primary, #ff6b6b);
-            color: white;
+            background: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
+            box-shadow: none !important;
+        }
+        
+        Links use button color
+        /* a:not(.btn):not(.nav-link) {
+            color: var(--fitness-button-bg, #4285F4) !important;
+            transition: all 0.3s ease;
+        }
+        
+        a:not(.btn):not(.nav-link):hover {
+            color: var(--fitness-button-bg, #4285F4) !important;
+            opacity: 0.8;
+            text-decoration: underline !important;
+        } */
+        
+        /* Form inputs border */
+        .form-control:hover:not(:disabled):not(:focus) {
+            border-color: var(--fitness-button-bg, #4285F4);
+        }
+        
+        .form-control:focus {
+            border-color: var(--fitness-button-bg, #4285F4);
+            box-shadow: 0 0 0 0.25rem rgba(66, 133, 244, 0.25);
+        }
+        
+        /* Select dropdown border */
+        .form-select:hover:not(:disabled):not(:focus) {
+            border-color: var(--fitness-button-bg, #4285F4);
+        }
+        
+        .form-select:focus {
+            border-color: var(--fitness-button-bg, #4285F4);
+            box-shadow: 0 0 0 0.25rem rgba(66, 133, 244, 0.25);
         }
         
     </style>

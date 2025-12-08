@@ -238,19 +238,20 @@
             font-size: 3rem;
         }
         
-        /* View Profile Button - Matching SuperHero CrossFit Dark Button */
+        /* View Profile Button - Use button colors from database */
         .plan-card .btn-dark {
-            background-color: #212529 !important;
-            border-color: #212529 !important;
-            color: #ffffff !important;
+            background-color: var(--fitness-button-bg, #4285F4) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-text, #ffffff) !important;
             font-size: 0.9rem;
             padding: 0.625rem 1.25rem;
             transition: all 0.3s ease;
         }
         
         .plan-card .btn-dark:hover:not(:disabled) {
-            background-color: #343a40 !important;
-            border-color: #343a40 !important;
+            background: var(--fitness-primary-light) !important;
+            border-color: var(--fitness-button-bg, #4285F4) !important;
+            color: var(--fitness-button-bg, #4285F4) !important;
             transform: translateY(-1px);
         }
         
@@ -260,9 +261,8 @@
             font-size: 0.9rem;
             padding: 0.625rem 1.25rem;
             background: var(--fitness-primary, #4285F4) !important;
-            border: none !important;
-            border-color: var(--fitness-primary, #4285F4) !important;
-            color: var(--fitness-text-light, white) !important;
+            border: 2px solid var(--fitness-primary, #4285F4) !important;
+            color: var(--fitness-text-light, #ffffff) !important;
             box-shadow: none !important;
         }
         

@@ -101,45 +101,6 @@
 
         @if($showColorCustomization)
         <div class="mt-6 space-y-6">
-            <!-- Primary Brand Colors -->
-            <div>
-                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Primary Brand Colors</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Color</label>
-                        <div class="flex items-center gap-3">
-                            <input 
-                                type="color" 
-                                wire:model.live="themeColors.primary_color"
-                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
-                            >
-                            <input 
-                                type="text" 
-                                wire:model="themeColors.primary_color"
-                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                                placeholder="#ff6b6b"
-                            >
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Secondary Color</label>
-                        <div class="flex items-center gap-3">
-                            <input 
-                                type="color" 
-                                wire:model.live="themeColors.secondary_color"
-                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
-                            >
-                            <input 
-                                type="text" 
-                                wire:model="themeColors.secondary_color"
-                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                                placeholder="#4ecdc4"
-                            >
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Text Colors -->
             <div>
                 <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Text Colors</h4>
@@ -281,6 +242,47 @@
                             >
                         </div>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Text color for navigation links and brand</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button Colors -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Button Colors</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Button Background</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.button_bg_color"
+                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.button_bg_color"
+                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                                placeholder="#4285F4"
+                            >
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Background color for buttons (Buy, Submit, etc.)</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Button Text</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.button_text_color"
+                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.button_text_color"
+                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                                placeholder="#ffffff"
+                            >
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Text color for buttons</p>
                     </div>
                 </div>
             </div>

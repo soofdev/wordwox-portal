@@ -79,6 +79,8 @@ class TemplatePreview extends Component
                 'bg_footer' => $themeColor->bg_footer,
                 'bg_navbar' => $themeColor->bg_navbar,
                 'text_navbar' => $themeColor->text_navbar,
+                'button_bg_color' => $themeColor->button_bg_color ?? $themeColor->primary_color,
+                'button_text_color' => $themeColor->button_text_color ?? '#ffffff',
             ];
         } else {
             $this->themeColors = [];
@@ -133,6 +135,8 @@ class TemplatePreview extends Component
                 'bg_footer' => $this->themeColors['bg_footer'] ?? '#f5f5f5',
                 'bg_navbar' => $this->themeColors['bg_navbar'] ?? '#212529',
                 'text_navbar' => $this->themeColors['text_navbar'] ?? '#ffffff',
+                'button_bg_color' => $this->themeColors['button_bg_color'] ?? $this->themeColors['primary_color'] ?? '#4285F4',
+                'button_text_color' => $this->themeColors['button_text_color'] ?? '#ffffff',
             ]);
             
             $this->successMessage = 'Theme colors saved successfully!';

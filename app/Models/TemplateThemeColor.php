@@ -31,6 +31,8 @@ class TemplateThemeColor extends Model
         'text_navbar',
         'primary_hover',
         'secondary_hover',
+        'button_bg_color',
+        'button_text_color',
     ];
 
     /**
@@ -66,6 +68,8 @@ class TemplateThemeColor extends Model
             'text_navbar' => '#ffffff',            // White text for navbar (from navbar-dark class on about page)
             'primary_hover' => '#357ABD',         // Darker blue for primary button hover (from CSS)
             'secondary_hover' => '#c02d1f',       // Darker red for secondary hover
+            'button_bg_color' => '#343a40',        // Button background color (dark gray default)
+            'button_text_color' => '#ffffff',      // Button text color (defaults to white)
         ];
     }
 
